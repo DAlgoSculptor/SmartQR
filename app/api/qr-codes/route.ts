@@ -97,7 +97,12 @@ export async function POST(request: Request) {
     // Compute the destination URL for dynamic redirect templates
     let computedDestinationUrl = destination_url
     if (!computedDestinationUrl || computedDestinationUrl.endsWith('/qr-')) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      // Determine origin dynamically from headers, with env fallback
+      const host = request.headers.get('host')
+      const proto = request.headers.get('x-forwarded-proto') || 'http'
+      const dynamicOrigin = host ? `${proto}://${host}` : null
+      const appUrl = dynamicOrigin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
       if (qr_type === 'file') {
         computedDestinationUrl = `${appUrl}/files/${slug}`
       } else if (qr_type === 'social') {

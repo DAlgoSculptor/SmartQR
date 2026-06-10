@@ -88,10 +88,25 @@ export async function GET(
     // Redirect to destination safely (NextResponse.redirect requires an absolute URL)
     if (qrCode.destination_url) {
       let redirectUrl = qrCode.destination_url
+      const requestUrl = new URL(request.url)
       
-      // If it's a relative URL, resolve it to an absolute URL using the request origin
-      if (!redirectUrl.startsWith('http://') && !redirectUrl.startsWith('https://')) {
-        const requestUrl = new URL(request.url)
+      // If the destination URL is an internal redirect page (files, social, menu),
+      // force the domain to match the current request domain to prevent localhost redirects in production
+      if (
+        redirectUrl.includes('/files/') || 
+        redirectUrl.includes('/social/') || 
+        redirectUrl.includes('/menu/')
+      ) {
+        const pathIndex = redirectUrl.indexOf('/files/') !== -1 
+          ? redirectUrl.indexOf('/files/') 
+          : redirectUrl.indexOf('/social/') !== -1 
+            ? redirectUrl.indexOf('/social/') 
+            : redirectUrl.indexOf('/menu/')
+        const pathPart = redirectUrl.substring(pathIndex)
+        redirectUrl = `${requestUrl.origin}${pathPart}`
+      }
+      // If it's a relative URL, resolve it using request origin
+      else if (!redirectUrl.startsWith('http://') && !redirectUrl.startsWith('https://')) {
         redirectUrl = `${requestUrl.origin}${redirectUrl.startsWith('/') ? '' : '/'}${redirectUrl}`
       }
 
