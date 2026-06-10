@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { NextResponse } from 'next/server'
 
 async function getClientIp(request: Request): Promise<string | null> {
   const forwardedFor = request.headers.get('x-forwarded-for')
@@ -65,9 +65,9 @@ export async function GET(
         // Silently fail
       })
 
-    // Redirect to destination
+    // Redirect to destination using NextResponse.redirect
     if (qrCode.destination_url) {
-      redirect(qrCode.destination_url)
+      return NextResponse.redirect(qrCode.destination_url)
     }
 
     return new Response('No destination URL', { status: 400 })
