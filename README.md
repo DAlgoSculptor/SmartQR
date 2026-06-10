@@ -1,30 +1,30 @@
-# SmartQR - Modern QR Code Generation Platform
+# SmartQR — Premium Dynamic QR Code Redirection Platform
 
-A Next.js SaaS application for creating, customizing, and managing QR codes with real-time analytics.
+A high-performance Next.js SaaS application for creating, customizing, and hosting dynamic QR codes with real-time tracking, custom formats, and an editorial dark UI.
+
+![SmartQR Premium Landing Page](public/hero-screenshot.png)
 
 ## 🎯 Features
 
-### QR Code Generation
-- **Multiple QR Code Types**: URL, Text, WiFi, vCard, Email, Phone
-- **Full Customization**: Colors, size, error correction level
-- **Download Options**: PNG, SVG, PDF formats
-- **Logo Support**: Add logos to QR codes
+### 🌟 Redesigned Editorial UI & Brand Ambiance
+- **Premium Styling**: Refined with deep dark theme backgrounds, custom grid patterns, and elegant typography (Plus Jakarta Sans paired with Playfair Display display-italic headings).
+- **Warm Copper Accents**: Styled with unified copper indicators (`#ea580c`), glowing highlights, and micro-interactions.
+- **Custom Branding Icon**: Replaced default assets with a custom vector favicon design: a dark card containing a stylized geometric QR Code finder pattern in a warm copper-to-amber gradient.
 
-### Dashboard
-- **QR Code Management**: Create, edit, and delete QR codes
-- **Real-time Analytics**: Track scan counts and patterns
-- **Organized View**: Filter and search QR codes
-- **Quick Actions**: Copy, share, and download from dashboard
+### 📋 Dynamic Blueprint Templates
+- **PDF Resume File Sharing**: Upload resumes or document assets directly to a global ImageKit CDN. Scanners view an optimized presentation card with embedded inline viewing and instant PDF downloads.
+- **Social Bio Trees**: Aggregate LinkedIn, GitHub, Twitter, and website portfolio links into a beautiful unified mobile bio tree page with customizable initials-based avatars.
+- **Digital Menus & Catalogs**: Build instant mobile-friendly dining menus and product directories with custom prices, categories, and currency formatting.
 
-### Authentication
-- **Secure Sign-up/Login**: Email-based authentication
-- **Session Management**: Automatic session handling
-- **User Profiles**: Manage account settings
+### 🔒 Usage Limits & Smart Inline Auth Modal
+- **Anonymous Usage Tracking**: Restricts unregistered visitors to a threshold of **3 free actions** (downloads or copies to clipboard).
+- **Glassmorphic Auth Prompt**: Exceeding the limits or choosing to save a QR code to the cloud triggers a premium modal with inline sign-in/sign-up forms.
+- **Smooth Recovery Flow**: Successfully logging in/registering automatically triggers the pending download or save action without losing form inputs.
 
-### Analytics
-- **Scan Tracking**: See how many times each QR code was scanned
-- **Scan History**: View detailed scan information
-- **Metrics**: Track performance over time
+### 📊 Real-Time Analytics Dashboard
+- **Bento Stats Layout**: Beautiful glass-card metrics for Total Active QRs, Combined Scan Counts, and Top Performing templates.
+- **Advanced Management Grid**: Filters by type, search bar with focus ring accents, and quick actions (Copy Link, View/Redirect, Analytics, Delete).
+- **Dynamic Chart Tracking**: Follow scan activity over time with clear visual charts.
 
 ## 📋 Prerequisites
 
@@ -159,8 +159,9 @@ All API endpoints require authentication.
 
 ### Colors
 Change default colors in component files:
-- **Primary Color**: `#6589c5` (Blue)
-- **Background**: `#080808` (Near-black)
+- **Primary Color**: `#ea580c` (Warm Copper / Orange)
+- **Secondary Accent**: `#fb923c` (Amber / Light Orange)
+- **Background**: `#040508` (Editorial deep near-black)
 
 ### Tailwind CSS
 Customize styling in `tailwind.config.ts`
