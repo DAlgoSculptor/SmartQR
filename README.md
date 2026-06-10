@@ -2,7 +2,7 @@
 
 A high-performance Next.js SaaS application for creating, customizing, and hosting dynamic QR codes with real-time tracking, custom formats, and an editorial dark UI.
 
-![SmartQR Premium Landing Page](public/hero-screenshot.png)
+![SmartQR Premium Landing Page](public/image.png)
 
 ## 🎯 Features
 
