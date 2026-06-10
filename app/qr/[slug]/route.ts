@@ -26,53 +26,82 @@ export async function GET(
       .single()
 
     if (qrError || !qrCode) {
+      console.error('QR code not found or database select failed:', qrError)
       return new Response('QR code not found', { status: 404 })
     }
 
-    // Get client IP
-    const ipAddress = await getClientIp(request)
+    // Get client IP safely
+    let ipAddress = null
+    try {
+      ipAddress = await getClientIp(request)
+    } catch (ipErr) {
+      console.warn('Could not parse client IP:', ipErr)
+    }
+    
     const userAgent = request.headers.get('user-agent')
     const referrer = request.headers.get('referer')
 
-    // Insert analytics record (without await to not slow down redirect)
-    const analytics = {
-      qr_code_id: qrCode.id,
-      ip_address: ipAddress,
-      user_agent: userAgent,
-      referrer: referrer,
+    // Insert analytics record safely inside try-catch to prevent crash
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (supabaseUrl && anonKey) {
+      const analytics = {
+        qr_code_id: qrCode.id,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        referrer: referrer,
+      }
+
+      try {
+        fetch(`${supabaseUrl}/rest/v1/qr_analytics`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${serviceRoleKey || anonKey}`,
+            'apikey': anonKey,
+          },
+          body: JSON.stringify(analytics),
+        }).catch((e) => {
+          console.warn('Async analytics insertion failed:', e)
+        })
+      } catch (fetchErr) {
+        console.warn('Synchronous analytics fetch call failed:', fetchErr)
+      }
     }
 
-    // Use Fetch API to insert analytics asynchronously without blocking redirect
-    fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/qr_analytics`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-      },
-      body: JSON.stringify(analytics),
-    }).catch(() => {
-      // Silently fail if analytics insertion fails, don't block redirect
-    })
+    // Increment scan count safely
+    try {
+      supabase
+        .from('qr_codes')
+        .update({ scan_count: (qrCode.scan_count || 0) + 1 })
+        .eq('id', qrCode.id)
+        .then()
+        .catch((e) => {
+          console.warn('Failed to update scan count:', e)
+        })
+    } catch (updateErr) {
+      console.warn('Failed to invoke scan count update query:', updateErr)
+    }
 
-    // Increment scan count
-    supabase
-      .from('qr_codes')
-      .update({ scan_count: qrCode.scan_count + 1 })
-      .eq('id', qrCode.id)
-      .then()
-      .catch(() => {
-        // Silently fail
-      })
-
-    // Redirect to destination using NextResponse.redirect
+    // Redirect to destination safely (NextResponse.redirect requires an absolute URL)
     if (qrCode.destination_url) {
-      return NextResponse.redirect(qrCode.destination_url)
+      let redirectUrl = qrCode.destination_url
+      
+      // If it's a relative URL, resolve it to an absolute URL using the request origin
+      if (!redirectUrl.startsWith('http://') && !redirectUrl.startsWith('https://')) {
+        const requestUrl = new URL(request.url)
+        redirectUrl = `${requestUrl.origin}${redirectUrl.startsWith('/') ? '' : '/'}${redirectUrl}`
+      }
+
+      console.log('Redirecting to:', redirectUrl)
+      return NextResponse.redirect(redirectUrl)
     }
 
     return new Response('No destination URL', { status: 400 })
   } catch (error) {
-    console.error('QR redirect error:', error)
+    console.error('QR redirect handler crashed:', error)
     return new Response('Internal server error', { status: 500 })
   }
 }
