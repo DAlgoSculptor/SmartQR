@@ -79,9 +79,9 @@ const getPlatformDetails = (platform: string) => {
     default:
       return {
         icon: <Globe className="w-5 h-5" />,
-        bgColor: 'hover:bg-primary/10',
-        borderColor: 'hover:border-primary/40',
-        textColor: 'group-hover:text-primary',
+        bgColor: 'hover:bg-orange-500/10',
+        borderColor: 'hover:border-orange-500/30',
+        textColor: 'group-hover:text-[#ea580c]',
         name: 'Website / Portfolio',
       }
   }
@@ -150,21 +150,24 @@ export default async function SocialViewerPage({
     : 'QR'
 
   return (
-    <main className="min-h-screen bg-background text-foreground py-16 px-4 flex flex-col items-center justify-start relative overflow-hidden">
+    <main className="min-h-screen bg-[#040508] text-foreground py-16 px-4 flex flex-col items-center justify-start relative overflow-hidden">
+      {/* Background grid lines overlay */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.01] pointer-events-none -z-10" />
+
       {/* Background decorations */}
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px] pointer-events-none -z-10" />
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-orange-500/[0.02] rounded-full blur-[100px] pointer-events-none -z-10" />
 
       {/* Profile Container */}
       <div className="w-full max-w-md text-center space-y-8 animate-fade-in">
         {/* Profile Avatar & Header */}
         <div className="space-y-4">
-          <div className="w-24 h-24 rounded-full bg-gradient-primary p-[3px] mx-auto shadow-xl">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-r from-orange-400 to-amber-500 p-[3px] mx-auto shadow-xl shadow-orange-500/10">
             <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center font-bold text-3xl tracking-wide text-white">
               {initials}
             </div>
           </div>
           <div className="space-y-1.5">
-            <h1 className="text-2xl font-bold tracking-tight">{socialData.profileName || 'Anonymous'}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-white">{socialData.profileName || 'Anonymous'}</h1>
             {socialData.bio && (
               <p className="text-sm text-foreground/70 max-w-sm mx-auto leading-relaxed text-balance">
                 {socialData.bio}
@@ -189,7 +192,7 @@ export default async function SocialViewerPage({
                   rel="noopener noreferrer"
                   className="block group"
                 >
-                  <div className={`w-full glass p-5 rounded-2xl border border-white/10 flex items-center justify-between transition-all duration-300 transform group-hover:scale-[1.01] group-hover:-translate-y-0.5 group-hover:shadow-lg ${details.bgColor} ${details.borderColor}`}>
+                  <div className={`w-full bg-[#08090d]/60 backdrop-blur-md p-5 rounded-2xl border border-white/5 flex items-center justify-between transition-all duration-300 transform group-hover:scale-[1.01] group-hover:-translate-y-0.5 group-hover:shadow-lg ${details.bgColor} ${details.borderColor}`}>
                     <div className="flex items-center gap-4">
                       <div className={`text-foreground/50 transition-colors duration-300 ${details.textColor}`}>
                         {details.icon}
@@ -206,7 +209,7 @@ export default async function SocialViewerPage({
               )
             })
           ) : (
-            <div className="glass p-8 rounded-2xl border border-white/5 text-center text-foreground/50 text-sm">
+            <div className="bg-[#08090d]/60 backdrop-blur-md p-8 rounded-2xl border border-white/5 text-center text-foreground/50 text-sm">
               No social links added yet.
             </div>
           )}
@@ -215,7 +218,7 @@ export default async function SocialViewerPage({
         {/* Footer */}
         <div className="pt-10 flex flex-col items-center gap-2">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-primary flex items-center justify-center text-white font-bold text-xs">
+            <div className="w-6 h-6 rounded bg-[#ea580c] flex items-center justify-center text-white font-black text-xs shadow-md shadow-orange-500/20">
               Q
             </div>
             <span className="font-semibold text-xs tracking-wider opacity-60">SmartQR Platform</span>

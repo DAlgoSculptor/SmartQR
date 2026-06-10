@@ -151,7 +151,7 @@ export default async function MenuViewerPage({
         {/* Brand Footer */}
         <div className="pt-12 flex flex-col items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-primary flex items-center justify-center text-white font-bold text-xs">
+            <div className="w-6 h-6 rounded bg-[#ea580c] flex items-center justify-center text-white font-black text-xs shadow-md shadow-orange-500/20">
               Q
             </div>
             <span className="font-semibold text-xs tracking-wider text-amber-100/40 uppercase">SmartQR Digital Menu</span>

@@ -87,19 +87,22 @@ export default async function FileViewerPage({
   const formattedSize = (fileData.fileSize / 1024 / 1024).toFixed(2)
 
   return (
-    <main className="h-screen bg-[#080808] text-foreground flex flex-col relative overflow-hidden">
+    <main className="h-screen bg-[#040508] text-foreground flex flex-col relative overflow-hidden">
+      {/* Background grid lines overlay */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.01] pointer-events-none -z-10" />
+
       {/* Dynamic Background Glows */}
-      <div className="absolute top-0 left-1/4 w-[300px] h-[300px] bg-primary/5 rounded-full blur-[100px] pointer-events-none -z-10" />
-      <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-primary/5 rounded-full blur-[100px] pointer-events-none -z-10" />
+      <div className="absolute top-0 left-1/4 w-[300px] h-[300px] bg-orange-500/[0.02] rounded-full blur-[100px] pointer-events-none -z-10" />
+      <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-orange-500/[0.02] rounded-full blur-[100px] pointer-events-none -z-10" />
 
       {/* Premium Top Navigation Bar */}
-      <header className="border-b border-white/10 bg-black/60 backdrop-blur-xl sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center text-white font-bold text-base shrink-0 shadow-lg shadow-primary/20">
+          <div className="w-10 h-10 rounded-xl bg-[#ea580c] flex items-center justify-center text-white font-black text-base shrink-0 shadow-lg shadow-orange-500/25">
             Q
           </div>
           <div className="min-w-0">
-            <h1 className="text-sm md:text-base font-bold truncate pr-4 text-balance">
+            <h1 className="text-sm md:text-base font-bold truncate pr-4 text-balance text-white">
               {fileData.fileName}
             </h1>
             <p className="text-[10px] md:text-xs text-foreground/50 font-medium tracking-wide">
@@ -110,7 +113,7 @@ export default async function FileViewerPage({
 
         <div className="flex items-center gap-3 shrink-0">
           <a href={fileData.fileUrl} download={fileData.fileName}>
-            <button className="flex items-center justify-center bg-gradient-primary hover:opacity-90 active:scale-95 text-white px-4 md:px-5 py-2.5 rounded-xl text-xs md:text-sm font-semibold shadow-lg shadow-primary/25 transition-all duration-300">
+            <button className="flex items-center justify-center bg-[#ea580c] hover:bg-[#ea580c]/90 active:scale-95 text-white px-4 md:px-5 py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-lg shadow-orange-500/20 transition-all duration-300">
               <Download className="w-4 h-4 mr-2" />
               Download File
             </button>
@@ -121,7 +124,7 @@ export default async function FileViewerPage({
       {/* Main Content Reader Workspace (fills remaining height) */}
       <div className="flex-1 w-full max-w-5xl mx-auto p-4 md:p-6 flex flex-col h-[calc(100vh-73px)]">
         {isPdf ? (
-          <div className="w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-zinc-950/40 flex flex-col">
+          <div className="w-full h-full rounded-2xl overflow-hidden border border-white/5 shadow-2xl bg-[#08090d]/60 backdrop-blur-md flex flex-col">
             <iframe
               src={`${fileData.fileUrl}#toolbar=1`}
               className="w-full h-full flex-1 border-0 rounded-2xl min-h-[600px] md:min-h-[78vh]"
@@ -129,7 +132,7 @@ export default async function FileViewerPage({
             />
           </div>
         ) : isImage ? (
-          <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-zinc-950 p-2">
+          <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/5 shadow-2xl bg-[#08090d]/60 backdrop-blur-md p-2">
             <img
               src={fileData.fileUrl}
               alt={fileData.fileName}
@@ -137,18 +140,18 @@ export default async function FileViewerPage({
             />
           </div>
         ) : (
-          <div className="m-auto glass p-10 rounded-3xl border border-white/10 text-center max-w-md w-full space-y-6 shadow-2xl">
-            <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center mx-auto text-foreground/40">
-              <FileText className="w-10 h-10 animate-pulse text-primary" />
+          <div className="m-auto bg-[#08090d]/60 backdrop-blur-md p-10 rounded-3xl border border-white/5 text-center max-w-md w-full space-y-6 shadow-2xl">
+            <div className="w-20 h-20 bg-orange-500/5 border border-orange-500/10 rounded-3xl flex items-center justify-center mx-auto text-orange-400">
+              <FileText className="w-10 h-10 animate-pulse text-[#ea580c]" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-xl font-bold">No preview available</h2>
+              <h2 className="text-xl font-bold text-white">No preview available</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
                 This file format ({fileData.fileType.split('/')[1]?.toUpperCase() || 'unknown'}) cannot be previewed directly in the browser.
               </p>
             </div>
             <a href={fileData.fileUrl} download={fileData.fileName} className="block w-full pt-4">
-              <button className="w-full bg-gradient-primary hover:opacity-90 text-white py-3 rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 transition-all">
+              <button className="w-full bg-[#ea580c] hover:bg-[#ea580c]/90 text-white py-3 rounded-xl text-sm font-bold shadow-lg shadow-orange-500/20 transition-all">
                 <Download className="w-4 h-4 inline mr-2" />
                 Download to View
               </button>
