@@ -91,6 +91,24 @@ export async function POST(request: Request) {
 
     const slug = generateSlug(title)
 
+    // Check if qr_data is object and stringify it for Postgres TEXT column
+    const serializedQrData = typeof qr_data === 'object' ? JSON.stringify(qr_data) : qr_data
+
+    // Compute the destination URL for dynamic redirect templates
+    let computedDestinationUrl = destination_url
+    if (!computedDestinationUrl || computedDestinationUrl.endsWith('/qr-')) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      if (qr_type === 'file') {
+        computedDestinationUrl = `${appUrl}/files/${slug}`
+      } else if (qr_type === 'social') {
+        computedDestinationUrl = `${appUrl}/social/${slug}`
+      } else if (qr_type === 'menu') {
+        computedDestinationUrl = `${appUrl}/menu/${slug}`
+      } else {
+        computedDestinationUrl = `${appUrl}/qr/${slug}`
+      }
+    }
+
     const { data, error } = await supabase
       .from('qr_codes')
       .insert([
@@ -99,8 +117,8 @@ export async function POST(request: Request) {
           title,
           slug,
           qr_type,
-          qr_data,
-          destination_url: destination_url || `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/qr/${slug}`,
+          qr_data: serializedQrData,
+          destination_url: computedDestinationUrl,
           custom_color: custom_color || '#6589c5',
           background_color: background_color || '#FFFFFF',
           size: size || 300,

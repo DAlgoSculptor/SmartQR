@@ -65,14 +65,23 @@ export default function QRGenerator({ toolType, onBack }: Props) {
         return
       }
 
+      let finalQrData: any = { value: qrValue }
+      if (['file', 'social', 'menu'].includes(toolType) && qrValue) {
+        try {
+          finalQrData = JSON.parse(qrValue)
+        } catch (e) {
+          console.error('Failed to parse qrValue JSON:', e)
+        }
+      }
+
       const response = await fetch('/api/qr-codes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
           qr_type: toolType,
-          qr_data: { value: qrValue },
-          destination_url: `${window.location.origin}/qr-`,
+          qr_data: finalQrData,
+          destination_url: '', // Let the server compute the correct dynamic viewing link
           custom_color: fgColor,
           background_color: bgColor,
           size: qrSize,
@@ -83,7 +92,7 @@ export default function QRGenerator({ toolType, onBack }: Props) {
       if (!response.ok) throw new Error('Failed to save QR code')
 
       const savedQR = await response.json()
-      alert(`QR code saved! Access it at: /qr/${savedQR.slug}`)
+      alert(`QR code saved successfully!`)
       window.location.href = '/dashboard'
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to save QR code')
@@ -94,6 +103,23 @@ export default function QRGenerator({ toolType, onBack }: Props) {
 
   const isValidQR = qrValue.trim().length > 0
 
+  let qrCanvasValue = qrValue
+  if (['file', 'social', 'menu'].includes(toolType) && qrValue) {
+    try {
+      const parsed = JSON.parse(qrValue)
+      if (toolType === 'file') {
+        // Encode direct upload URL in static preview
+        qrCanvasValue = parsed.fileUrl ? `${window.location.origin}${parsed.fileUrl}` : ''
+      } else {
+        qrCanvasValue = `${window.location.origin}/preview?type=${toolType}`
+      }
+    } catch (e) {
+      // fallback
+    }
+  }
+
+  const isValidCanvasValue = qrCanvasValue.trim().length > 0
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -103,7 +129,7 @@ export default function QRGenerator({ toolType, onBack }: Props) {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Selection
           </Button>
-          <h1 className="text-4xl font-bold capitalize">{toolType} QR Code</h1>
+          <h1 className="text-4xl font-bold capitalize">{toolType === 'file' ? 'File / Resume' : toolType} QR Code</h1>
           <p className="text-foreground/60 mt-2">Fill in your details and customize your QR code</p>
         </div>
       </div>
@@ -145,12 +171,12 @@ export default function QRGenerator({ toolType, onBack }: Props) {
             <h3 className="text-lg font-semibold mb-6">Preview</h3>
             <div
               ref={qrRef}
-              className="p-4 bg-white rounded-lg"
+              className="p-4 bg-white rounded-lg animate-fade-in"
               style={{ backgroundColor: bgColor }}
             >
-              {isValidQR && (
+              {isValidCanvasValue && (
                 <QRCodeCanvas
-                  value={qrValue}
+                  value={qrCanvasValue}
                   size={qrSize}
                   fgColor={fgColor}
                   bgColor={bgColor}
@@ -159,7 +185,7 @@ export default function QRGenerator({ toolType, onBack }: Props) {
                 />
               )}
             </div>
-            {!isValidQR && (
+            {!isValidCanvasValue && (
               <p className="text-foreground/50 text-sm text-center">
                 Fill in your information to generate QR code
               </p>

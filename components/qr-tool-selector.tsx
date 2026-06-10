@@ -1,6 +1,6 @@
 'use client'
 
-import { FileText, Link2, User, Wifi, Mail, MessageSquare, MessageCircle, Calendar } from 'lucide-react'
+import { FileText, Link2, User, Wifi, Mail, MessageSquare, MessageCircle, Calendar, FileUp, Share2, Utensils } from 'lucide-react'
 
 interface ToolOption {
   id: string
@@ -21,6 +21,24 @@ const tools: ToolOption[] = [
     name: 'URL QR',
     description: 'Link to websites or web pages',
     icon: <Link2 className="w-8 h-8" />,
+  },
+  {
+    id: 'file',
+    name: 'File / Resume QR',
+    description: 'Upload files or resumes and share them',
+    icon: <FileUp className="w-8 h-8" />,
+  },
+  {
+    id: 'social',
+    name: 'Social Links Tree',
+    description: 'Create a landing page with all your social links',
+    icon: <Share2 className="w-8 h-8" />,
+  },
+  {
+    id: 'menu',
+    name: 'Restaurant Menu QR',
+    description: 'Publish a digital restaurant menu or catalog',
+    icon: <Utensils className="w-8 h-8" />,
   },
   {
     id: 'vcard',

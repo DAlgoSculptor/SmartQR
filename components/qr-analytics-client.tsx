@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { User } from '@supabase/supabase-js'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Globe, Clock, Link2 } from 'lucide-react'
+import { ArrowLeft, Globe, Clock, Link2, Download, Copy } from 'lucide-react'
 import Link from 'next/link'
+import { QRCodeCanvas } from 'qrcode.react'
+import { downloadQRCode } from '@/lib/qr-utils'
 
 interface QRCode {
   id: string
@@ -90,6 +92,27 @@ export default function QRAnalyticsClient({
   const uniqueCountries = new Set(analytics.map((a) => a.country).filter(Boolean)).size
   const uniqueIps = new Set(analytics.map((a) => a.ip_address).filter(Boolean)).size
 
+  const qrRef = useRef<HTMLDivElement>(null)
+  const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/qr/${qr.slug}` : ''
+
+  const handleCopyCode = async () => {
+    try {
+      const canvas = qrRef.current?.querySelector('canvas')
+      if (canvas) {
+        canvas.toBlob(async (blob) => {
+          if (blob) {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob }),
+            ])
+            alert('QR code copied to clipboard!')
+          }
+        })
+      }
+    } catch (err) {
+      alert('Failed to copy QR code')
+    }
+  }
+
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
@@ -109,46 +132,101 @@ export default function QRAnalyticsClient({
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <div className="glass p-6 rounded-2xl">
-            <div className="text-foreground/60 text-sm mb-2">Total Scans</div>
-            <div className="text-4xl font-bold text-primary">{data.total_scans}</div>
-          </div>
-          <div className="glass p-6 rounded-2xl">
-            <div className="text-foreground/60 text-sm mb-2">Unique IPs</div>
-            <div className="text-4xl font-bold">{uniqueIps}</div>
-          </div>
-          <div className="glass p-6 rounded-2xl">
-            <div className="text-foreground/60 text-sm mb-2">Countries</div>
-            <div className="text-4xl font-bold">{uniqueCountries}</div>
-          </div>
-          <div className="glass p-6 rounded-2xl">
-            <div className="text-foreground/60 text-sm mb-2">QR Type</div>
-            <div className="text-lg font-bold capitalize">{qr.qr_type}</div>
-          </div>
-        </div>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column: Stats & Scan History */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="glass p-5 rounded-2xl">
+                <div className="text-foreground/60 text-xs mb-2 truncate">Total Scans</div>
+                <div className="text-3xl font-extrabold text-primary">{data.total_scans}</div>
+              </div>
+              <div className="glass p-5 rounded-2xl">
+                <div className="text-foreground/60 text-xs mb-2 truncate">Unique IPs</div>
+                <div className="text-3xl font-extrabold">{uniqueIps}</div>
+              </div>
+              <div className="glass p-5 rounded-2xl">
+                <div className="text-foreground/60 text-xs mb-2 truncate">Countries</div>
+                <div className="text-3xl font-extrabold">{uniqueCountries}</div>
+              </div>
+            </div>
 
-        {/* QR URL */}
-        <div className="glass p-6 rounded-2xl mb-12">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">QR Code URL</h2>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-white/10 hover:bg-white/5"
-              onClick={() => {
-                const url = `${window.location.origin}/qr/${qr.slug}`
-                navigator.clipboard.writeText(url)
-                alert('URL copied!')
-              }}
-            >
-              <Link2 className="w-4 h-4 mr-2" />
-              Copy
-            </Button>
+            {/* QR Link Card */}
+            <div className="glass p-6 rounded-2xl">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-base font-semibold">Redirect Link</h2>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-white/10 hover:bg-white/5 h-8 text-xs"
+                  onClick={() => {
+                    navigator.clipboard.writeText(qrUrl)
+                    alert('URL copied!')
+                  }}
+                >
+                  <Link2 className="w-3.5 h-3.5 mr-1.5" />
+                  Copy URL
+                </Button>
+              </div>
+              <div className="text-sm text-foreground/75 break-all font-mono">
+                {qrUrl}
+              </div>
+            </div>
           </div>
-          <div className="text-sm text-foreground/70 break-all font-mono">
-            {window.location.origin}/qr/{qr.slug}
+
+          {/* Right Column: QR Code Preview */}
+          <div className="space-y-6">
+            <div className="glass p-6 rounded-2xl flex flex-col items-center">
+              <h2 className="text-base font-semibold mb-4 w-full text-left border-b border-white/5 pb-2">QR Code Preview</h2>
+              
+              <div 
+                ref={qrRef}
+                className="p-4 rounded-xl mb-4 bg-white"
+                style={{ backgroundColor: qr.background_color || '#FFFFFF' }}
+              >
+                {qrUrl && (
+                  <QRCodeCanvas
+                    value={qrUrl}
+                    size={180}
+                    fgColor={qr.custom_color || '#6589c5'}
+                    bgColor={qr.background_color || '#FFFFFF'}
+                    level={qr.error_level as any || 'M'}
+                    includeMargin={true}
+                  />
+                )}
+              </div>
+              
+              <div className="w-full space-y-2">
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    className="flex-1 bg-primary hover:bg-primary/90 text-white"
+                    onClick={() => downloadQRCode(qrRef, 'png', `smartqr-${qr.slug}`)}
+                  >
+                    <Download className="w-3.5 h-3.5 mr-1.5" />
+                    PNG
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 border-white/10 hover:bg-white/5"
+                    onClick={() => downloadQRCode(qrRef, 'svg', `smartqr-${qr.slug}`)}
+                  >
+                    <Download className="w-3.5 h-3.5 mr-1.5" />
+                    SVG
+                  </Button>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full border-white/10 hover:bg-white/5"
+                  onClick={handleCopyCode}
+                >
+                  <Copy className="w-3.5 h-3.5 mr-1.5" />
+                  Copy Image
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
