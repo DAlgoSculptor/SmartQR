@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { QRCodeCanvas } from 'qrcode.react'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Download, Copy, Share2, Cloud } from 'lucide-react'
 import QRInput from '@/components/qr-input'
 import QRCustomizer from '@/components/qr-customizer'
+import AuthModal from '@/components/auth-modal'
 import { downloadQRCode } from '@/lib/qr-utils'
 import { createClient } from '@/lib/supabase/client'
 
@@ -24,39 +25,98 @@ export default function QRGenerator({ toolType, onBack }: Props) {
   const [saving, setSaving] = useState(false)
   const qrRef = useRef<HTMLDivElement>(null)
 
-  const handleDownload = (format: 'png' | 'svg' | 'pdf') => {
-    downloadQRCode(qrRef, format, `smartqr-${toolType}`)
-  }
+  // Auth & Free usage states
+  const [user, setUser] = useState<any>(null)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [pendingAction, setPendingAction] = useState<((u: any) => void) | null>(null)
+  const [authModalActionName, setAuthModalActionName] = useState('')
 
-  const handleCopy = async () => {
-    try {
-      const canvas = document.querySelector('canvas')
-      if (canvas) {
-        canvas.toBlob(async (blob) => {
-          if (blob) {
-            await navigator.clipboard.write([
-              new ClipboardItem({ 'image/png': blob }),
-            ])
-            alert('QR code copied to clipboard!')
-          }
-        })
-      }
-    } catch (err) {
-      alert('Failed to copy QR code')
+  useEffect(() => {
+    const checkUser = async () => {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    checkUser()
+  }, [])
+
+  const handleAuthSuccess = (newUser: any) => {
+    setUser(newUser)
+    if (pendingAction) {
+      pendingAction(newUser)
+      setPendingAction(null)
     }
   }
 
-  const handleSaveToCloud = async () => {
-    const supabase = createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      window.location.href = '/auth/login'
+  const checkAuthOrUsage = (actionName: string, actionCallback: (u?: any) => void) => {
+    if (user) {
+      actionCallback(user)
       return
     }
 
+    const countStr = localStorage.getItem('smartqr_free_uses_count')
+    const count = countStr ? parseInt(countStr, 10) : 0
+
+    if (count >= 3) {
+      // Reached free download limit (3 files/copies)
+      setPendingAction(() => actionCallback)
+      setAuthModalActionName(actionName)
+      setIsAuthModalOpen(true)
+    } else {
+      // Still under limits, increment and perform action
+      localStorage.setItem('smartqr_free_uses_count', (count + 1).toString())
+      actionCallback()
+    }
+  }
+
+  const handleDownload = (format: 'png' | 'svg' | 'pdf') => {
+    checkAuthOrUsage('Download', () => {
+      downloadQRCode(qrRef, format, `smartqr-${toolType}`)
+    })
+  }
+
+  const handleCopy = () => {
+    checkAuthOrUsage('Copy to Clipboard', async () => {
+      try {
+        const canvas = document.querySelector('canvas')
+        if (canvas) {
+          canvas.toBlob(async (blob) => {
+            if (blob) {
+              await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob }),
+              ])
+              alert('QR code copied to clipboard!')
+            }
+          })
+        }
+      } catch (err) {
+        alert('Failed to copy QR code')
+      }
+    })
+  }
+
+  const handleShare = () => {
+    checkAuthOrUsage('Share', async () => {
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: 'SmartQR Code',
+            text: 'Check out this QR code generated with SmartQR',
+            url: window.location.origin,
+          })
+        } else {
+          await navigator.clipboard.writeText(window.location.origin)
+          alert('Site link copied to clipboard!')
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    })
+  }
+
+  const handleSaveToCloud = async (authenticatedUser: any) => {
     setSaving(true)
     try {
       const title = prompt('Give your QR code a name:')
@@ -98,6 +158,16 @@ export default function QRGenerator({ toolType, onBack }: Props) {
       alert(err instanceof Error ? err.message : 'Failed to save QR code')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const triggerSave = () => {
+    if (user) {
+      handleSaveToCloud(user)
+    } else {
+      setPendingAction(() => (u: any) => handleSaveToCloud(u))
+      setAuthModalActionName('Save to Cloud')
+      setIsAuthModalOpen(true)
     }
   }
 
@@ -201,7 +271,7 @@ export default function QRGenerator({ toolType, onBack }: Props) {
           <div className="glass p-6 rounded-3xl border border-white/5 bg-white/[0.01] hover:border-orange-500/10 transition-all duration-300 space-y-4">
             <h3 className="text-xs font-bold text-foreground/40 uppercase tracking-widest">Save & Track</h3>
             <Button
-              onClick={handleSaveToCloud}
+              onClick={triggerSave}
               disabled={!isValidQR || saving}
               className="w-full bg-[#ea580c] hover:bg-[#ea580c]/90 text-white text-xs font-bold rounded-xl py-3.5 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
             >
@@ -259,6 +329,7 @@ export default function QRGenerator({ toolType, onBack }: Props) {
                 Copy to Clipboard
               </Button>
               <Button
+                onClick={handleShare}
                 disabled={!isValidQR}
                 variant="outline"
                 className="w-full border border-white/10 bg-white/[0.01] hover:bg-white/[0.04] hover:border-white/20 text-white text-xs font-bold rounded-xl py-3.5 transition-all duration-300 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
@@ -270,7 +341,17 @@ export default function QRGenerator({ toolType, onBack }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => {
+          setIsAuthModalOpen(false)
+          setPendingAction(null)
+        }}
+        onSuccess={handleAuthSuccess}
+        actionName={authModalActionName}
+      />
     </div>
   )
 }
-
