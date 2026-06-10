@@ -10,11 +10,19 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center text-white font-bold">
-                Q
-              </div>
-              <span className="font-bold text-lg">SmartQR</span>
+            <div className="mb-4">
+              <span
+                className="font-black tracking-tight text-5xl"
+                style={{
+                  background: 'linear-gradient(to right, #ea580c 0%, #ea580c 28%, transparent 36%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  WebkitTextStroke: '1.2px rgba(255, 255, 255, 0.85)',
+                  display: 'inline-block',
+                }}
+              >
+                SmartQr
+              </span>
             </div>
             <p className="text-foreground/60 text-sm">
               Create beautiful QR codes instantly. No limits, no login required.
@@ -26,17 +34,17 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Product</h4>
             <ul className="space-y-2 text-sm text-foreground/60">
               <li>
-                <Link href="#features" className="hover:text-foreground transition">
+                <Link href="/features" className="hover:text-foreground transition">
                   Features
                 </Link>
               </li>
               <li>
-                <Link href="#how" className="hover:text-foreground transition">
+                <Link href="/how-it-works" className="hover:text-foreground transition">
                   How It Works
                 </Link>
               </li>
               <li>
-                <Link href="#pricing" className="hover:text-foreground transition">
+                <Link href="/pricing" className="hover:text-foreground transition">
                   Pricing
                 </Link>
               </li>
@@ -107,7 +115,7 @@ export default function Footer() {
         <div className="border-t border-white/10 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-foreground/60">
-              © 2024 SmartQR. All rights reserved.
+              © 2026 SmartQr. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
               <a

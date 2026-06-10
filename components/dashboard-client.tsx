@@ -122,11 +122,19 @@ export default function DashboardClient({ user }: { user: SupabaseUser }) {
       <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <Link href="/">
-            <div className="flex items-center gap-3 hover:opacity-85 transition cursor-pointer">
-              <div className="w-9 h-9 rounded-xl bg-gradient-primary flex items-center justify-center text-white font-bold text-base shadow-lg shadow-primary/20">
-                Q
-              </div>
-              <h1 className="text-xl font-extrabold tracking-tight">SmartQR</h1>
+            <div className="hover:opacity-85 transition cursor-pointer">
+              <span
+                className="font-black tracking-tight text-2xl"
+                style={{
+                  background: 'linear-gradient(to right, #ea580c 0%, #ea580c 28%, transparent 36%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  WebkitTextStroke: '0.8px rgba(255, 255, 255, 0.85)',
+                  display: 'inline-block',
+                }}
+              >
+                SmartQr
+              </span>
             </div>
           </Link>
           <div className="flex items-center gap-4">
