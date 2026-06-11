@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { FileDown, FileText, ArrowLeft, Calendar, ShieldCheck, Download } from 'lucide-react'
+import Link from 'next/link'
 
 interface QRData {
   type: string
@@ -98,22 +99,39 @@ export default async function FileViewerPage({
       {/* Premium Top Navigation Bar */}
       <header className="border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-[#ea580c] flex items-center justify-center text-white font-black text-base shrink-0 shadow-lg shadow-orange-500/25">
-            Q
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-sm md:text-base font-bold truncate pr-4 text-balance text-white">
-              {fileData.fileName}
-            </h1>
-            <p className="text-[10px] md:text-xs text-foreground/50 font-medium tracking-wide">
-              {formattedSize} MB • {fileData.fileType.split('/')[1]?.toUpperCase() || 'FILE'} • Scanned via SmartQR
-            </p>
+          <Link href="/">
+            <span
+              className="font-black tracking-tight text-xl cursor-pointer hover:opacity-85 transition shrink-0"
+              style={{
+                background: 'linear-gradient(to right, #ea580c 0%, #ea580c 28%, transparent 36%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                WebkitTextStroke: '0.6px rgba(255, 255, 255, 0.85)',
+                display: 'inline-block',
+              }}
+            >
+              SmartQr
+            </span>
+          </Link>
+          <div className="min-w-0 flex items-center gap-3">
+            <div className="min-w-0">
+              <h1 className="text-sm md:text-base font-bold truncate pr-4 text-balance text-white">
+                {fileData.fileName}
+              </h1>
+              <p className="text-[10px] md:text-xs text-foreground/50 font-medium tracking-wide">
+                {formattedSize} MB • {fileData.fileType.split('/')[1]?.toUpperCase() || 'FILE'} • Scanned via SmartQR
+              </p>
+            </div>
+            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-orange-500/20 bg-orange-500/5 text-orange-400 text-[8px] font-bold tracking-widest uppercase shrink-0 select-none">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+              Secured Cloud
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
           <a href={fileData.fileUrl} download={fileData.fileName}>
-            <button className="flex items-center justify-center bg-[#ea580c] hover:bg-[#ea580c]/90 active:scale-95 text-white px-4 md:px-5 py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-lg shadow-orange-500/20 transition-all duration-300">
+            <button className="flex items-center justify-center bg-gradient-to-r from-orange-500 via-orange-600 to-amber-500 hover:opacity-95 hover:scale-[1.02] active:scale-95 text-white px-4 md:px-5 py-2.5 rounded-xl text-xs md:text-sm font-bold shadow-lg shadow-orange-500/10 transition-all duration-300">
               <Download className="w-4 h-4 mr-2" />
               Download File
             </button>
@@ -124,7 +142,7 @@ export default async function FileViewerPage({
       {/* Main Content Reader Workspace (fills remaining height) */}
       <div className="flex-1 w-full max-w-5xl mx-auto p-4 md:p-6 flex flex-col h-[calc(100vh-73px)]">
         {isPdf ? (
-          <div className="w-full h-full rounded-2xl overflow-hidden border border-white/5 shadow-2xl bg-[#08090d]/60 backdrop-blur-md flex flex-col">
+          <div className="w-full h-full rounded-2xl overflow-hidden border border-white/5 shadow-2xl bg-[#08090d]/60 backdrop-blur-md flex flex-col group hover:border-orange-500/10 transition-all duration-500">
             <iframe
               src={`${fileData.fileUrl}#toolbar=1`}
               className="w-full h-full flex-1 border-0 rounded-2xl min-h-[600px] md:min-h-[78vh]"
@@ -132,16 +150,16 @@ export default async function FileViewerPage({
             />
           </div>
         ) : isImage ? (
-          <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/5 shadow-2xl bg-[#08090d]/60 backdrop-blur-md p-2">
+          <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/5 shadow-2xl bg-[#08090d]/60 backdrop-blur-md p-4 group hover:border-orange-500/10 transition-all duration-500">
             <img
               src={fileData.fileUrl}
               alt={fileData.fileName}
-              className="max-w-full max-h-[75vh] object-contain rounded-xl transition duration-500"
+              className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-xl transition-all duration-500 group-hover:scale-[1.01]"
             />
           </div>
         ) : (
-          <div className="m-auto bg-[#08090d]/60 backdrop-blur-md p-10 rounded-3xl border border-white/5 text-center max-w-md w-full space-y-6 shadow-2xl">
-            <div className="w-20 h-20 bg-orange-500/5 border border-orange-500/10 rounded-3xl flex items-center justify-center mx-auto text-orange-400">
+          <div className="m-auto bg-[#08090d]/60 backdrop-blur-md p-10 rounded-3xl border border-white/5 text-center max-w-md w-full space-y-6 shadow-2xl group hover:border-orange-500/15 transition-all duration-500">
+            <div className="w-20 h-20 bg-orange-500/5 border border-orange-500/10 rounded-3xl flex items-center justify-center mx-auto text-orange-400 group-hover:scale-105 transition-transform duration-500">
               <FileText className="w-10 h-10 animate-pulse text-[#ea580c]" />
             </div>
             <div className="space-y-2">
@@ -151,7 +169,7 @@ export default async function FileViewerPage({
               </p>
             </div>
             <a href={fileData.fileUrl} download={fileData.fileName} className="block w-full pt-4">
-              <button className="w-full bg-[#ea580c] hover:bg-[#ea580c]/90 text-white py-3 rounded-xl text-sm font-bold shadow-lg shadow-orange-500/20 transition-all">
+              <button className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-95 text-white py-3 rounded-xl text-sm font-bold shadow-lg shadow-orange-500/10 transition-all">
                 <Download className="w-4 h-4 inline mr-2" />
                 Download to View
               </button>

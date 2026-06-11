@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { Linkedin, Github, Twitter, Instagram, Facebook, Globe, ShieldCheck } from 'lucide-react'
+import Link from 'next/link'
 
 interface SocialLink {
   platform: string
@@ -217,12 +218,23 @@ export default async function SocialViewerPage({
 
         {/* Footer */}
         <div className="pt-10 flex flex-col items-center gap-2">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-[#ea580c] flex items-center justify-center text-white font-black text-xs shadow-md shadow-orange-500/20">
-              Q
+          <Link href="/">
+            <div className="flex items-center gap-2 cursor-pointer hover:opacity-85 transition">
+              <span
+                className="font-black tracking-tight text-base"
+                style={{
+                  background: 'linear-gradient(to right, #ea580c 0%, #ea580c 28%, transparent 36%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  WebkitTextStroke: '0.5px rgba(255, 255, 255, 0.85)',
+                  display: 'inline-block',
+                }}
+              >
+                SmartQr
+              </span>
+              <span className="font-semibold text-xs tracking-wider opacity-60">Platform</span>
             </div>
-            <span className="font-semibold text-xs tracking-wider opacity-60">SmartQR Platform</span>
-          </div>
+          </Link>
         </div>
       </div>
     </main>
