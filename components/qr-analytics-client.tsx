@@ -97,8 +97,59 @@ export default function QRAnalyticsClient({
   const uniqueCountries = new Set(analytics.map((a) => a.country).filter(Boolean)).size
   const uniqueIps = new Set(analytics.map((a) => a.ip_address).filter(Boolean)).size
 
+  // Parse custom styled configs if present
+  let finalFgColor = '#ea580c'
+  let isGrad = false
+  let gradEndColor = '#fb923c'
+  let dotStyle = 'classic'
+  let frameOverlay = 'none'
+
+  if (qr.custom_color) {
+    if (qr.custom_color.startsWith('{')) {
+      try {
+        const config = JSON.parse(qr.custom_color)
+        finalFgColor = config.color || '#ea580c'
+        isGrad = !!config.isGradient
+        gradEndColor = config.gradientEndColor || '#fb923c'
+        dotStyle = config.qrStyle || 'classic'
+        frameOverlay = config.qrFrame || 'none'
+      } catch (e) {
+        finalFgColor = qr.custom_color
+      }
+    } else {
+      finalFgColor = qr.custom_color
+    }
+  }
+
   const qrRef = useRef<HTMLDivElement>(null)
   const qrUrl = mounted ? `${window.location.origin}/qr/${qr.slug}` : ''
+
+  // Canvas composite drawing for gradient overlays
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!qrRef.current) return
+      const canvas = qrRef.current.querySelector('canvas')
+      if (!canvas) return
+      
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+      
+      const width = canvas.width
+      const height = canvas.height
+      
+      if (isGrad && gradEndColor) {
+        ctx.globalCompositeOperation = 'source-in'
+        const gradient = ctx.createLinearGradient(0, 0, width, height)
+        gradient.addColorStop(0, finalFgColor)
+        gradient.addColorStop(1, gradEndColor)
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, width, height)
+        ctx.globalCompositeOperation = 'source-over'
+      }
+    }, 80)
+    
+    return () => clearTimeout(timer)
+  }, [mounted, data, finalFgColor, isGrad, gradEndColor])
 
   const handleCopyCode = async () => {
     try {
@@ -186,20 +237,47 @@ export default function QRAnalyticsClient({
               
               <div 
                 ref={qrRef}
-                className="p-4 rounded-xl mb-4 bg-white"
-                style={{ backgroundColor: qr.background_color || '#FFFFFF' }}
+                className="p-6 bg-white rounded-2xl mb-4 border relative flex items-center justify-center"
+                style={{ 
+                  backgroundColor: qr.background_color || '#FFFFFF',
+                  borderColor: frameOverlay === 'brackets' ? 'rgba(234, 88, 12, 0.25)' : 'rgba(255, 255, 255, 0.05)'
+                }}
               >
+                {/* Brackets corners */}
+                {frameOverlay === 'brackets' && (
+                  <>
+                    <div className="absolute top-2.5 left-2.5 w-3.5 h-3.5 border-t-2 border-l-2 border-[#ea580c]" />
+                    <div className="absolute top-2.5 right-2.5 w-3.5 h-3.5 border-t-2 border-r-2 border-[#ea580c]" />
+                    <div className="absolute bottom-2.5 left-2.5 w-3.5 h-3.5 border-b-2 border-l-2 border-[#ea580c]" />
+                    <div className="absolute bottom-2.5 right-2.5 w-3.5 h-3.5 border-b-2 border-r-2 border-[#ea580c]" />
+                  </>
+                )}
+
+                {/* Scan laser line */}
+                {frameOverlay === 'laser' && (
+                  <div className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#ea580c] to-transparent shadow-md shadow-orange-500/50 animate-scanning z-10" />
+                )}
+
                 {qrUrl && (
-                  <QRCodeCanvas
-                    value={qrUrl}
-                    size={180}
-                    fgColor={qr.custom_color || '#6589c5'}
-                    bgColor={qr.background_color || '#FFFFFF'}
-                    level={qr.error_level as any || 'M'}
-                    includeMargin={true}
-                  />
+                  <div className={dotStyle === 'rounded' ? 'qr-style-rounded' : ''} style={{ display: 'flex' }}>
+                    <QRCodeCanvas
+                      value={qrUrl}
+                      size={150} // Adjusted size to fit within frame borders cleanly
+                      fgColor={finalFgColor}
+                      bgColor={qr.background_color || '#FFFFFF'}
+                      level={qr.error_level as any || 'M'}
+                      includeMargin={true}
+                    />
+                  </div>
                 )}
               </div>
+              
+              {/* Style override tags for rounded pixels rendering */}
+              <style>{`
+                .qr-style-rounded canvas {
+                  filter: blur(1.5px) contrast(8);
+                }
+              `}</style>
               
               <div className="w-full space-y-2">
                 <div className="flex gap-2">

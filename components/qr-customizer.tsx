@@ -17,6 +17,10 @@ interface Props {
   onQrStyleChange: (style: 'classic' | 'rounded') => void
   qrFrame: 'none' | 'brackets' | 'laser'
   onQrFrameChange: (frame: 'none' | 'brackets' | 'laser') => void
+  isGradient: boolean
+  onIsGradientChange: (val: boolean) => void
+  gradientEndColor: string
+  onGradientEndColorChange: (color: string) => void
 }
 
 export default function QRCustomizer({
@@ -34,6 +38,10 @@ export default function QRCustomizer({
   onQrStyleChange,
   qrFrame,
   onQrFrameChange,
+  isGradient,
+  onIsGradientChange,
+  gradientEndColor,
+  onGradientEndColorChange,
 }: Props) {
   return (
     <div className="space-y-8">
@@ -41,10 +49,39 @@ export default function QRCustomizer({
       <div className="space-y-6">
         <h3 className="text-xs font-bold text-foreground/40 uppercase tracking-widest pb-2 border-b border-white/5">Colors</h3>
         
+        {/* Solid vs Gradient Switch */}
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">Fill Type</label>
+          <div className="grid grid-cols-2 gap-3 max-w-sm">
+            <button
+              onClick={() => onIsGradientChange(false)}
+              className={`py-2 px-3 rounded-lg border text-[11px] font-bold transition-all duration-300 cursor-pointer ${
+                !isGradient
+                  ? 'border-orange-500 bg-orange-500/10 text-orange-400'
+                  : 'border-white/10 bg-white/[0.01] text-foreground/60 hover:border-orange-500/20 hover:text-orange-400'
+              }`}
+            >
+              Solid Color
+            </button>
+            <button
+              onClick={() => onIsGradientChange(true)}
+              className={`py-2 px-3 rounded-lg border text-[11px] font-bold transition-all duration-300 cursor-pointer ${
+                isGradient
+                  ? 'border-orange-500 bg-orange-500/10 text-orange-400'
+                  : 'border-white/10 bg-white/[0.01] text-foreground/60 hover:border-orange-500/20 hover:text-orange-400'
+              }`}
+            >
+              Gradient Color
+            </button>
+          </div>
+        </div>
+
         <div className="grid md:grid-cols-2 gap-6">
-          {/* Foreground color */}
+          {/* Foreground color / Start color */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">QR Code Color</label>
+            <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">
+              {isGradient ? 'Gradient Start Color' : 'QR Code Color'}
+            </label>
             <div className="flex items-center gap-3">
               <input
                 type="color"
@@ -62,8 +99,51 @@ export default function QRCustomizer({
             </div>
           </div>
 
-          {/* Background color */}
-          <div className="space-y-2">
+          {/* End color if gradient mode is active, otherwise Background color */}
+          {isGradient ? (
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">Gradient End Color</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={gradientEndColor}
+                  onChange={(e) => onGradientEndColorChange(e.target.value)}
+                  className="w-16 h-10 rounded-xl border border-white/10 bg-black/40 cursor-pointer transition-all duration-300 hover:border-orange-500/30"
+                />
+                <Input
+                  type="text"
+                  value={gradientEndColor}
+                  onChange={(e) => onGradientEndColorChange(e.target.value)}
+                  placeholder="#000000"
+                  className="flex-1 border-white/10 bg-white/[0.01] focus-visible:border-orange-500/40 focus-visible:ring-orange-500/20 rounded-xl py-5 transition-all duration-300 placeholder:text-foreground/20 text-white font-medium"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">Background Color</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={bgColor}
+                  onChange={(e) => onBgColorChange(e.target.value)}
+                  className="w-16 h-10 rounded-xl border border-white/10 bg-black/40 cursor-pointer transition-all duration-300 hover:border-orange-500/30"
+                />
+                <Input
+                  type="text"
+                  value={bgColor}
+                  onChange={(e) => onBgColorChange(e.target.value)}
+                  placeholder="#FFFFFF"
+                  className="flex-1 border-white/10 bg-white/[0.01] focus-visible:border-orange-500/40 focus-visible:ring-orange-500/20 rounded-xl py-5 transition-all duration-300 placeholder:text-foreground/20 text-white font-medium"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Background color row when in Gradient Mode */}
+        {isGradient && (
+          <div className="space-y-2 max-w-sm">
             <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">Background Color</label>
             <div className="flex items-center gap-3">
               <input
@@ -81,7 +161,40 @@ export default function QRCustomizer({
               />
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Preset Gradient Palettes */}
+        {isGradient && (
+          <div className="space-y-3 pt-2">
+            <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">Preset Gradients</label>
+            <div className="flex flex-wrap gap-3">
+              {[
+                { name: 'Copper Glow', start: '#ea580c', end: '#fb923c' },
+                { name: 'Sunset Flame', start: '#ea580c', end: '#ef4444' },
+                { name: 'Forest Aurora', start: '#0d9488', end: '#22c55e' },
+                { name: 'Ocean Breeze', start: '#0284c7', end: '#06b6d4' },
+                { name: 'Cosmic Neon', start: '#7c3aed', end: '#db2777' },
+              ].map((p) => (
+                <button
+                  key={p.name}
+                  onClick={() => {
+                    onFgColorChange(p.start)
+                    onGradientEndColorChange(p.end)
+                  }}
+                  type="button"
+                  title={p.name}
+                  className="flex items-center gap-2 p-1.5 px-3 rounded-full border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition text-[10px] font-bold text-white cursor-pointer select-none"
+                >
+                  <span
+                    className="w-3.5 h-3.5 rounded-full border border-white/10"
+                    style={{ background: `linear-gradient(135deg, ${p.start}, ${p.end})` }}
+                  />
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Size */}

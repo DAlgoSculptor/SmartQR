@@ -18,13 +18,15 @@ interface Props {
 export default function QRGenerator({ toolType, onBack }: Props) {
   const [qrValue, setQrValue] = useState('')
   const [qrSize, setQrSize] = useState(300)
-  const [fgColor, setFgColor] = useState('#6589c5')
+  const [fgColor, setFgColor] = useState('#ea580c') // Branded default copper color
   const [bgColor, setBgColor] = useState('#080808')
   const [errorLevel, setErrorLevel] = useState<'L' | 'M' | 'H' | 'Q'>('H')
   const [logoUrl, setLogoUrl] = useState<string>('')
   const [saving, setSaving] = useState(false)
   const [qrStyle, setQrStyle] = useState<'classic' | 'rounded'>('classic')
   const [qrFrame, setQrFrame] = useState<'none' | 'brackets' | 'laser'>('none')
+  const [isGradient, setIsGradient] = useState(false)
+  const [gradientEndColor, setGradientEndColor] = useState('#fb923c')
   const qrRef = useRef<HTMLDivElement>(null)
 
   // Auth & Free usage states
@@ -43,6 +45,33 @@ export default function QRGenerator({ toolType, onBack }: Props) {
     }
     checkUser()
   }, [])
+
+  // Canvas composite drawing for gradient overlays
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!qrRef.current) return
+      const canvas = qrRef.current.querySelector('canvas')
+      if (!canvas) return
+      
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+      
+      const width = canvas.width
+      const height = canvas.height
+      
+      if (isGradient && gradientEndColor) {
+        ctx.globalCompositeOperation = 'source-in'
+        const gradient = ctx.createLinearGradient(0, 0, width, height)
+        gradient.addColorStop(0, fgColor)
+        gradient.addColorStop(1, gradientEndColor)
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, width, height)
+        ctx.globalCompositeOperation = 'source-over'
+      }
+    }, 80)
+    
+    return () => clearTimeout(timer)
+  }, [qrValue, fgColor, bgColor, errorLevel, logoUrl, isGradient, gradientEndColor, qrSize, qrFrame, qrStyle])
 
   const handleAuthSuccess = (newUser: any) => {
     setUser(newUser)
@@ -144,7 +173,13 @@ export default function QRGenerator({ toolType, onBack }: Props) {
           qr_type: toolType,
           qr_data: finalQrData,
           destination_url: '', // Let the server compute the correct dynamic viewing link
-          custom_color: fgColor,
+          custom_color: JSON.stringify({
+            color: fgColor,
+            isGradient,
+            gradientEndColor,
+            qrStyle,
+            qrFrame,
+          }),
           background_color: bgColor,
           size: qrSize,
           error_level: errorLevel,
