@@ -62,6 +62,7 @@ export default function DashboardClient({ user }: { user: SupabaseUser }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [origin, setOrigin] = useState('')
+  const [mounted, setMounted] = useState(false)
   
   // Search and Filter states for the bottom list
   const [searchTerm, setSearchTerm] = useState('')
@@ -71,11 +72,13 @@ export default function DashboardClient({ user }: { user: SupabaseUser }) {
   const [activeTab, setActiveTab] = useState('dashboard')
 
   // Customizer Sandbox States
+  const [sandboxValue, setSandboxValue] = useState('https://smartqr.io/qr/sandbox')
   const [sandboxStyle, setSandboxStyle] = useState<'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars' | 'hearts'>('rounded')
   const [sandboxEyeShape, setSandboxEyeShape] = useState<'classic' | 'rounded' | 'circle'>('rounded')
   const [sandboxColor, setSandboxColor] = useState('#ea580c')
 
   useEffect(() => {
+    setMounted(true)
     if (typeof window !== 'undefined') {
       setOrigin(window.location.origin)
     }
@@ -372,66 +375,70 @@ export default function DashboardClient({ user }: { user: SupabaseUser }) {
             </div>
 
             {/* Line/Area Chart */}
-            <div className="h-64 sm:h-72 w-full text-foreground">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={analyticsData}
-                  margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
-                >
-                  <defs>
-                    <linearGradient id="scansGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ea580c" stopOpacity={0.25}/>
-                      <stop offset="95%" stopColor="#ea580c" stopOpacity={0.01}/>
-                    </linearGradient>
-                    <linearGradient id="uniqueGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#fb923c" stopOpacity={0.15}/>
-                      <stop offset="95%" stopColor="#fb923c" stopOpacity={0.0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)" vertical={false} />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="rgba(255,255,255,0.2)" 
-                    tickLine={false} 
-                    axisLine={false}
-                    tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 9, fontWeight: 700 }}
-                  />
-                  <YAxis 
-                    stroke="rgba(255,255,255,0.2)" 
-                    tickLine={false} 
-                    axisLine={false}
-                    tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 9, fontWeight: 700 }}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#0a0a0d', 
-                      borderColor: 'rgba(234, 88, 12, 0.2)', 
-                      borderRadius: '16px',
-                      fontSize: '11px',
-                      color: '#ffffff'
-                    }}
-                    itemStyle={{ color: '#ea580c', fontWeight: 700 }}
-                    labelStyle={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="Scans" 
-                    stroke="#ea580c" 
-                    strokeWidth={2.5}
-                    fillOpacity={1} 
-                    fill="url(#scansGrad)" 
-                    activeDot={{ r: 5, strokeWidth: 0, fill: '#ffffff' }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="Unique Scans" 
-                    stroke="#fb923c" 
-                    strokeWidth={1.5}
-                    fillOpacity={1} 
-                    fill="url(#uniqueGrad)" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+            <div className="h-64 sm:h-72 w-full text-foreground flex items-center justify-center">
+              {mounted ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={analyticsData}
+                    margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="scansGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ea580c" stopOpacity={0.25}/>
+                        <stop offset="95%" stopColor="#ea580c" stopOpacity={0.01}/>
+                      </linearGradient>
+                      <linearGradient id="uniqueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#fb923c" stopOpacity={0.15}/>
+                        <stop offset="95%" stopColor="#fb923c" stopOpacity={0.0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)" vertical={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="rgba(255,255,255,0.2)" 
+                      tickLine={false} 
+                      axisLine={false}
+                      tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 9, fontWeight: 700 }}
+                    />
+                    <YAxis 
+                      stroke="rgba(255,255,255,0.2)" 
+                      tickLine={false} 
+                      axisLine={false}
+                      tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 9, fontWeight: 700 }}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#0a0a0d', 
+                        borderColor: 'rgba(234, 88, 12, 0.2)', 
+                        borderRadius: '16px',
+                        fontSize: '11px',
+                        color: '#ffffff'
+                      }}
+                      itemStyle={{ color: '#ea580c', fontWeight: 700 }}
+                      labelStyle={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="Scans" 
+                      stroke="#ea580c" 
+                      strokeWidth={2.5}
+                      fillOpacity={1} 
+                      fill="url(#scansGrad)" 
+                      activeDot={{ r: 5, strokeWidth: 0, fill: '#ffffff' }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="Unique Scans" 
+                      stroke="#fb923c" 
+                      strokeWidth={1.5}
+                      fillOpacity={1} 
+                      fill="url(#uniqueGrad)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-xs text-foreground/30 animate-pulse font-medium">Initializing analytics layout...</div>
+              )}
             </div>
           </div>
 
@@ -470,14 +477,18 @@ export default function DashboardClient({ user }: { user: SupabaseUser }) {
                           <div className="flex items-center gap-3 min-w-0">
                             {/* Tiny Live QR Thumbnail */}
                             <div className="w-10 h-10 bg-black/40 border border-white/5 rounded-lg flex items-center justify-center shrink-0 overflow-hidden p-0.5">
-                              <CustomQR 
-                                value={`${origin}/qr/${qr.slug}`} 
-                                size={36} 
-                                fgColor={parsedColor} 
-                                bgColor="#080808" 
-                                qrStyle={parsedStyle} 
-                                errorLevel="L"
-                              />
+                              {mounted ? (
+                                <CustomQR 
+                                  value={`${origin}/qr/${qr.slug}`} 
+                                  size={36} 
+                                  fgColor={parsedColor} 
+                                  bgColor="#080808" 
+                                  qrStyle={parsedStyle} 
+                                  errorLevel="L"
+                                />
+                              ) : (
+                                <div className="w-9 h-9 bg-[#080808] rounded-md animate-pulse shrink-0" />
+                              )}
                             </div>
                             <div className="min-w-0">
                               <p className="text-xs font-bold text-white truncate leading-tight">{qr.title}</p>
@@ -594,16 +605,20 @@ export default function DashboardClient({ user }: { user: SupabaseUser }) {
                   <div className="absolute bottom-1 left-1 w-1.5 h-1.5 border-b border-l border-orange-500" />
                   <div className="absolute bottom-1 right-1 w-1.5 h-1.5 border-b border-r border-orange-500" />
                   
-                  <CustomQR
-                    value={sandboxValue}
-                    size={110}
-                    fgColor={sandboxColor}
-                    bgColor="#080808"
-                    qrStyle={sandboxStyle}
-                    eyeStyleOuter={sandboxEyeShape}
-                    eyeStyleInner={sandboxEyeShape}
-                    errorLevel="M"
-                  />
+                  {mounted ? (
+                    <CustomQR
+                      value={sandboxValue}
+                      size={110}
+                      fgColor={sandboxColor}
+                      bgColor="#080808"
+                      qrStyle={sandboxStyle}
+                      eyeStyleOuter={sandboxEyeShape}
+                      eyeStyleInner={sandboxEyeShape}
+                      errorLevel="M"
+                    />
+                  ) : (
+                    <div className="w-[110px] h-[110px] bg-[#080808] animate-pulse rounded-lg flex items-center justify-center text-[10px] text-foreground/30 font-bold">SQ</div>
+                  )}
                 </div>
 
                 {/* Right options columns */}
