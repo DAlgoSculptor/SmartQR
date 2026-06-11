@@ -13,6 +13,10 @@ interface Props {
   onErrorLevelChange: (level: 'L' | 'M' | 'H' | 'Q') => void
   logoUrl: string
   onLogoUrlChange: (url: string) => void
+  qrStyle: 'classic' | 'rounded'
+  onQrStyleChange: (style: 'classic' | 'rounded') => void
+  qrFrame: 'none' | 'brackets' | 'laser'
+  onQrFrameChange: (frame: 'none' | 'brackets' | 'laser') => void
 }
 
 export default function QRCustomizer({
@@ -26,6 +30,10 @@ export default function QRCustomizer({
   onErrorLevelChange,
   logoUrl,
   onLogoUrlChange,
+  qrStyle,
+  onQrStyleChange,
+  qrFrame,
+  onQrFrameChange,
 }: Props) {
   return (
     <div className="space-y-8">
@@ -118,6 +126,70 @@ export default function QRCustomizer({
         <p className="text-[11px] text-foreground/40 font-medium">
           Higher levels maintain readability even when part of the QR code is obscured or styled with logo overlays.
         </p>
+      </div>
+
+      {/* QR Dot Style Customizer */}
+      <div className="space-y-3">
+        <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">QR Dot Style</label>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => onQrStyleChange('classic')}
+            className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer ${
+              qrStyle === 'classic'
+                ? 'border-orange-500 bg-orange-500/10 text-orange-400'
+                : 'border-white/10 bg-white/[0.01] text-foreground/60 hover:border-orange-500/20 hover:bg-orange-500/5 hover:text-orange-400'
+            }`}
+          >
+            Classic Square
+          </button>
+          <button
+            onClick={() => onQrStyleChange('rounded')}
+            className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer ${
+              qrStyle === 'rounded'
+                ? 'border-orange-500 bg-orange-500/10 text-orange-400'
+                : 'border-white/10 bg-white/[0.01] text-foreground/60 hover:border-orange-500/20 hover:bg-orange-500/5 hover:text-orange-400'
+            }`}
+          >
+            Organic Rounded
+          </button>
+        </div>
+      </div>
+
+      {/* Frame Style Customizer */}
+      <div className="space-y-3">
+        <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">Frame Style</label>
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            onClick={() => onQrFrameChange('none')}
+            className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer ${
+              qrFrame === 'none'
+                ? 'border-orange-500 bg-orange-500/10 text-orange-400'
+                : 'border-white/10 bg-white/[0.01] text-foreground/60 hover:border-orange-500/20 hover:bg-orange-500/5 hover:text-orange-400'
+            }`}
+          >
+            No Frame
+          </button>
+          <button
+            onClick={() => onQrFrameChange('brackets')}
+            className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer ${
+              qrFrame === 'brackets'
+                ? 'border-orange-500 bg-orange-500/10 text-orange-400'
+                : 'border-white/10 bg-white/[0.01] text-foreground/60 hover:border-orange-500/20 hover:bg-orange-500/5 hover:text-orange-400'
+            }`}
+          >
+            Tech Brackets
+          </button>
+          <button
+            onClick={() => onQrFrameChange('laser')}
+            className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all duration-300 cursor-pointer ${
+              qrFrame === 'laser'
+                ? 'border-orange-500 bg-orange-500/10 text-orange-400'
+                : 'border-white/10 bg-white/[0.01] text-foreground/60 hover:border-orange-500/20 hover:bg-orange-500/5 hover:text-orange-400'
+            }`}
+          >
+            Laser Scan
+          </button>
+        </div>
       </div>
 
       {/* Logo Upload */}
