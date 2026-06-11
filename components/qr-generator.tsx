@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { QRCodeCanvas } from 'qrcode.react'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Download, Copy, Share2, Cloud } from 'lucide-react'
 import QRInput from '@/components/qr-input'
 import QRCustomizer from '@/components/qr-customizer'
+import CustomQR from '@/components/custom-qr'
 import AuthModal from '@/components/auth-modal'
 import { downloadQRCode } from '@/lib/qr-utils'
 import { createClient } from '@/lib/supabase/client'
@@ -23,10 +23,23 @@ export default function QRGenerator({ toolType, onBack }: Props) {
   const [errorLevel, setErrorLevel] = useState<'L' | 'M' | 'H' | 'Q'>('H')
   const [logoUrl, setLogoUrl] = useState<string>('')
   const [saving, setSaving] = useState(false)
-  const [qrStyle, setQrStyle] = useState<'classic' | 'rounded'>('classic')
-  const [qrFrame, setQrFrame] = useState<'none' | 'brackets' | 'laser'>('none')
+  const [qrStyle, setQrStyle] = useState<'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars'>('classic')
+  const [qrFrame, setQrFrame] = useState<'none' | 'brackets' | 'laser' | 'card' | 'bubble'>('none')
   const [isGradient, setIsGradient] = useState(false)
   const [gradientEndColor, setGradientEndColor] = useState('#fb923c')
+  const [gradientType, setGradientType] = useState<'linear' | 'radial'>('linear')
+  
+  // Advanced styling states matching Starbucks / Schlossweine image
+  const [eyeStyleOuter, setEyeStyleOuter] = useState<'classic' | 'rounded' | 'circle'>('classic')
+  const [eyeStyleInner, setEyeStyleInner] = useState<'classic' | 'rounded' | 'circle'>('classic')
+  const [eyeColorTL, setEyeColorTL] = useState('')
+  const [eyeColorTR, setEyeColorTR] = useState('')
+  const [eyeColorBL, setEyeColorBL] = useState('')
+  const [useCustomEyeColors, setUseCustomEyeColors] = useState(false)
+  const [logoBgShield, setLogoBgShield] = useState<'none' | 'circle' | 'rectangle'>('circle')
+  const [logoSize, setLogoSize] = useState(44)
+  const [frameText, setFrameText] = useState('SCAN ME')
+
   const qrRef = useRef<HTMLDivElement>(null)
 
   // Auth & Free usage states
@@ -45,33 +58,6 @@ export default function QRGenerator({ toolType, onBack }: Props) {
     }
     checkUser()
   }, [])
-
-  // Canvas composite drawing for gradient overlays
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!qrRef.current) return
-      const canvas = qrRef.current.querySelector('canvas')
-      if (!canvas) return
-      
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-      
-      const width = canvas.width
-      const height = canvas.height
-      
-      if (isGradient && gradientEndColor) {
-        ctx.globalCompositeOperation = 'source-in'
-        const gradient = ctx.createLinearGradient(0, 0, width, height)
-        gradient.addColorStop(0, fgColor)
-        gradient.addColorStop(1, gradientEndColor)
-        ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, width, height)
-        ctx.globalCompositeOperation = 'source-over'
-      }
-    }, 80)
-    
-    return () => clearTimeout(timer)
-  }, [qrValue, fgColor, bgColor, errorLevel, logoUrl, isGradient, gradientEndColor, qrSize, qrFrame, qrStyle])
 
   const handleAuthSuccess = (newUser: any) => {
     setUser(newUser)
@@ -111,7 +97,7 @@ export default function QRGenerator({ toolType, onBack }: Props) {
   const handleCopy = () => {
     checkAuthOrUsage('Copy to Clipboard', async () => {
       try {
-        const canvas = document.querySelector('canvas')
+        const canvas = qrRef.current?.querySelector('canvas')
         if (canvas) {
           canvas.toBlob(async (blob) => {
             if (blob) {
@@ -177,8 +163,18 @@ export default function QRGenerator({ toolType, onBack }: Props) {
             color: fgColor,
             isGradient,
             gradientEndColor,
+            gradientType,
             qrStyle,
             qrFrame,
+            eyeStyleOuter,
+            eyeStyleInner,
+            eyeColorTL: useCustomEyeColors ? eyeColorTL : '',
+            eyeColorTR: useCustomEyeColors ? eyeColorTR : '',
+            eyeColorBL: useCustomEyeColors ? eyeColorBL : '',
+            useCustomEyeColors,
+            logoBgShield,
+            logoSize,
+            frameText,
           }),
           background_color: bgColor,
           size: qrSize,
@@ -286,6 +282,30 @@ export default function QRGenerator({ toolType, onBack }: Props) {
               onQrStyleChange={setQrStyle}
               qrFrame={qrFrame}
               onQrFrameChange={setQrFrame}
+              isGradient={isGradient}
+              onIsGradientChange={setIsGradient}
+              gradientEndColor={gradientEndColor}
+              onGradientEndColorChange={setGradientEndColor}
+              gradientType={gradientType}
+              onGradientTypeChange={setGradientType}
+              eyeStyleOuter={eyeStyleOuter}
+              onEyeStyleOuterChange={setEyeStyleOuter}
+              eyeStyleInner={eyeStyleInner}
+              onEyeStyleInnerChange={setEyeStyleInner}
+              eyeColorTL={eyeColorTL}
+              onEyeColorTLChange={setEyeColorTL}
+              eyeColorTR={eyeColorTR}
+              onEyeColorTRChange={setEyeColorTR}
+              eyeColorBL={eyeColorBL}
+              onEyeColorBLChange={setEyeColorBL}
+              useCustomEyeColors={useCustomEyeColors}
+              onUseCustomEyeColorsChange={setUseCustomEyeColors}
+              logoBgShield={logoBgShield}
+              onLogoBgShieldChange={setLogoBgShield}
+              logoSize={logoSize}
+              onLogoSizeChange={setLogoSize}
+              frameText={frameText}
+              onFrameTextChange={setFrameText}
             />
           </div>
         </div>
@@ -296,49 +316,49 @@ export default function QRGenerator({ toolType, onBack }: Props) {
           <div className="glass p-8 rounded-3xl border border-white/5 bg-white/[0.01] hover:border-orange-500/10 transition-all duration-300 flex flex-col items-center justify-center relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/5 rounded-full blur-[20px] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
             <h3 className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-6">Preview</h3>
+            
             <div
               ref={qrRef}
-              className="p-6 bg-white rounded-2xl animate-fade-in transition-all duration-300 hover:scale-[1.02] shadow-xl shadow-black/40 border relative flex items-center justify-center"
-              style={{ 
-                backgroundColor: bgColor,
-                borderColor: qrFrame === 'brackets' ? 'rgba(234, 88, 12, 0.25)' : 'rgba(255, 255, 255, 0.05)'
-              }}
+              className="relative flex items-center justify-center p-2 rounded-2xl bg-[#080808]/20 border border-white/5"
             >
-              {/* Brackets corners */}
-              {qrFrame === 'brackets' && (
-                <>
-                  <div className="absolute top-2.5 left-2.5 w-3.5 h-3.5 border-t-2 border-l-2 border-[#ea580c]" />
-                  <div className="absolute top-2.5 right-2.5 w-3.5 h-3.5 border-t-2 border-r-2 border-[#ea580c]" />
-                  <div className="absolute bottom-2.5 left-2.5 w-3.5 h-3.5 border-b-2 border-l-2 border-[#ea580c]" />
-                  <div className="absolute bottom-2.5 right-2.5 w-3.5 h-3.5 border-b-2 border-r-2 border-[#ea580c]" />
-                </>
-              )}
-
-              {/* Scan laser line */}
-              {qrFrame === 'laser' && (
-                <div className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#ea580c] to-transparent shadow-md shadow-orange-500/50 animate-scanning z-10" />
-              )}
-
               {isValidCanvasValue && (
-                <div className={qrStyle === 'rounded' ? 'qr-style-rounded' : ''} style={{ display: 'flex' }}>
-                  <QRCodeCanvas
+                <>
+                  <CustomQR
                     value={qrCanvasValue}
-                    size={260} // Adjusted size to fit within frame borders cleanly
+                    size={280}
                     fgColor={fgColor}
                     bgColor={bgColor}
-                    level={errorLevel}
-                    includeMargin={true}
+                    isGradient={isGradient}
+                    gradientEndColor={gradientEndColor}
+                    gradientType={gradientType}
+                    qrStyle={qrStyle}
+                    eyeStyleOuter={eyeStyleOuter}
+                    eyeStyleInner={eyeStyleInner}
+                    eyeColorTL={useCustomEyeColors ? eyeColorTL : ''}
+                    eyeColorTR={useCustomEyeColors ? eyeColorTR : ''}
+                    eyeColorBL={useCustomEyeColors ? eyeColorBL : ''}
+                    qrFrame={qrFrame}
+                    frameText={frameText}
+                    logoUrl={logoUrl}
+                    logoSize={logoSize}
+                    logoBgShield={logoBgShield}
+                    errorLevel={errorLevel}
                   />
-                </div>
+
+                  {/* Browser Live Scanning overlay for laser effect */}
+                  {qrFrame === 'laser' && (
+                    <div 
+                      className="absolute h-0.5 bg-gradient-to-r from-transparent via-[#ea580c] to-transparent shadow-md shadow-orange-500/50 animate-scanning z-10 pointer-events-none"
+                      style={{
+                        left: '12px',
+                        right: '12px',
+                        width: 'calc(100% - 24px)',
+                      }}
+                    />
+                  )}
+                </>
               )}
             </div>
-            
-            {/* Style override tags for rounded pixels rendering */}
-            <style>{`
-              .qr-style-rounded canvas {
-                filter: blur(1.5px) contrast(8);
-              }
-            `}</style>
 
             {!isValidCanvasValue && (
               <p className="text-foreground/40 text-xs text-center leading-relaxed mt-4 max-w-xs font-medium">

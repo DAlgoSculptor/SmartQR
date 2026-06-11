@@ -5,7 +5,7 @@ import { User } from '@supabase/supabase-js'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Globe, Clock, Link2, Download, Copy } from 'lucide-react'
 import Link from 'next/link'
-import { QRCodeCanvas } from 'qrcode.react'
+import CustomQR from '@/components/custom-qr'
 import { downloadQRCode } from '@/lib/qr-utils'
 
 interface QRCode {
@@ -17,6 +17,8 @@ interface QRCode {
   created_at: string
   scan_count: number
   custom_color?: string
+  background_color?: string
+  error_level?: string
 }
 
 interface AnalyticsRecord {
@@ -101,8 +103,19 @@ export default function QRAnalyticsClient({
   let finalFgColor = '#ea580c'
   let isGrad = false
   let gradEndColor = '#fb923c'
-  let dotStyle = 'classic'
-  let frameOverlay = 'none'
+  let gradType: 'linear' | 'radial' = 'linear'
+  let dotStyle: 'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars' = 'classic'
+  let frameOverlay: 'none' | 'brackets' | 'laser' | 'card' | 'bubble' = 'none'
+  let eyeStyleOuter: 'classic' | 'rounded' | 'circle' = 'classic'
+  let eyeStyleInner: 'classic' | 'rounded' | 'circle' = 'classic'
+  let eyeColorTL = ''
+  let eyeColorTR = ''
+  let eyeColorBL = ''
+  let useCustomEyeColors = false
+  let logoBgShield: 'none' | 'circle' | 'rectangle' = 'circle'
+  let logoSize = 44
+  let logoUrl = ''
+  let frameText = 'SCAN ME'
 
   if (qr.custom_color) {
     if (qr.custom_color.startsWith('{')) {
@@ -111,8 +124,19 @@ export default function QRAnalyticsClient({
         finalFgColor = config.color || '#ea580c'
         isGrad = !!config.isGradient
         gradEndColor = config.gradientEndColor || '#fb923c'
+        gradType = config.gradientType || 'linear'
         dotStyle = config.qrStyle || 'classic'
         frameOverlay = config.qrFrame || 'none'
+        eyeStyleOuter = config.eyeStyleOuter || 'classic'
+        eyeStyleInner = config.eyeStyleInner || 'classic'
+        eyeColorTL = config.eyeColorTL || ''
+        eyeColorTR = config.eyeColorTR || ''
+        eyeColorBL = config.eyeColorBL || ''
+        useCustomEyeColors = !!config.useCustomEyeColors
+        logoBgShield = config.logoBgShield || 'circle'
+        logoSize = config.logoSize || 44
+        logoUrl = config.logoUrl || ''
+        frameText = config.frameText || 'SCAN ME'
       } catch (e) {
         finalFgColor = qr.custom_color
       }
@@ -123,33 +147,6 @@ export default function QRAnalyticsClient({
 
   const qrRef = useRef<HTMLDivElement>(null)
   const qrUrl = mounted ? `${window.location.origin}/qr/${qr.slug}` : ''
-
-  // Canvas composite drawing for gradient overlays
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!qrRef.current) return
-      const canvas = qrRef.current.querySelector('canvas')
-      if (!canvas) return
-      
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-      
-      const width = canvas.width
-      const height = canvas.height
-      
-      if (isGrad && gradEndColor) {
-        ctx.globalCompositeOperation = 'source-in'
-        const gradient = ctx.createLinearGradient(0, 0, width, height)
-        gradient.addColorStop(0, finalFgColor)
-        gradient.addColorStop(1, gradEndColor)
-        ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, width, height)
-        ctx.globalCompositeOperation = 'source-over'
-      }
-    }, 80)
-    
-    return () => clearTimeout(timer)
-  }, [mounted, data, finalFgColor, isGrad, gradEndColor])
 
   const handleCopyCode = async () => {
     try {
@@ -237,47 +234,45 @@ export default function QRAnalyticsClient({
               
               <div 
                 ref={qrRef}
-                className="p-6 bg-white rounded-2xl mb-4 border relative flex items-center justify-center"
-                style={{ 
-                  backgroundColor: qr.background_color || '#FFFFFF',
-                  borderColor: frameOverlay === 'brackets' ? 'rgba(234, 88, 12, 0.25)' : 'rgba(255, 255, 255, 0.05)'
-                }}
+                className="relative flex items-center justify-center mb-4 p-2 rounded-2xl bg-[#080808]/20 border border-white/5"
               >
-                {/* Brackets corners */}
-                {frameOverlay === 'brackets' && (
-                  <>
-                    <div className="absolute top-2.5 left-2.5 w-3.5 h-3.5 border-t-2 border-l-2 border-[#ea580c]" />
-                    <div className="absolute top-2.5 right-2.5 w-3.5 h-3.5 border-t-2 border-r-2 border-[#ea580c]" />
-                    <div className="absolute bottom-2.5 left-2.5 w-3.5 h-3.5 border-b-2 border-l-2 border-[#ea580c]" />
-                    <div className="absolute bottom-2.5 right-2.5 w-3.5 h-3.5 border-b-2 border-r-2 border-[#ea580c]" />
-                  </>
-                )}
-
-                {/* Scan laser line */}
-                {frameOverlay === 'laser' && (
-                  <div className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#ea580c] to-transparent shadow-md shadow-orange-500/50 animate-scanning z-10" />
-                )}
-
                 {qrUrl && (
-                  <div className={dotStyle === 'rounded' ? 'qr-style-rounded' : ''} style={{ display: 'flex' }}>
-                    <QRCodeCanvas
+                  <>
+                    <CustomQR
                       value={qrUrl}
-                      size={150} // Adjusted size to fit within frame borders cleanly
+                      size={180}
                       fgColor={finalFgColor}
                       bgColor={qr.background_color || '#FFFFFF'}
-                      level={qr.error_level as any || 'M'}
-                      includeMargin={true}
+                      isGradient={isGrad}
+                      gradientEndColor={gradEndColor}
+                      gradientType={gradType}
+                      qrStyle={dotStyle}
+                      eyeStyleOuter={eyeStyleOuter}
+                      eyeStyleInner={eyeStyleInner}
+                      eyeColorTL={useCustomEyeColors ? eyeColorTL : ''}
+                      eyeColorTR={useCustomEyeColors ? eyeColorTR : ''}
+                      eyeColorBL={useCustomEyeColors ? eyeColorBL : ''}
+                      qrFrame={frameOverlay}
+                      frameText={frameText}
+                      logoUrl={logoUrl}
+                      logoSize={logoSize}
+                      logoBgShield={logoBgShield}
+                      errorLevel={qr.error_level as any || 'M'}
                     />
-                  </div>
+
+                    {frameOverlay === 'laser' && (
+                      <div 
+                        className="absolute h-0.5 bg-gradient-to-r from-transparent via-[#ea580c] to-transparent shadow-md shadow-orange-500/50 animate-scanning z-10 pointer-events-none"
+                        style={{
+                          left: '12px',
+                          right: '12px',
+                          width: 'calc(100% - 24px)',
+                        }}
+                      />
+                    )}
+                  </>
                 )}
               </div>
-              
-              {/* Style override tags for rounded pixels rendering */}
-              <style>{`
-                .qr-style-rounded canvas {
-                  filter: blur(1.5px) contrast(8);
-                }
-              `}</style>
               
               <div className="w-full space-y-2">
                 <div className="flex gap-2">
@@ -314,7 +309,7 @@ export default function QRAnalyticsClient({
         </div>
 
         {/* Analytics Table */}
-        <div className="glass rounded-2xl overflow-hidden">
+        <div className="glass rounded-2xl overflow-hidden mt-8">
           <div className="px-6 py-4 border-b border-white/10">
             <h2 className="text-lg font-semibold">Scan History</h2>
             <p className="text-sm text-foreground/60 mt-1">
@@ -361,14 +356,14 @@ export default function QRAnalyticsClient({
                         <div className="flex items-center gap-2">
                           <Globe className="w-4 h-4 text-foreground/50" />
                           {record.city && record.country
-                            ? `${record.city}, ${record.country}`
-                            : record.country || 'Unknown'}
+                             ? `${record.city}, ${record.country}`
+                             : record.country || 'Unknown'}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-foreground/70 font-mono">
                         {record.ip_address || '-'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-foreground/70">
+                      <td className="px-6 py-4 text-sm text-foreground/70 font-sans break-all">
                         {record.user_agent
                           ? record.user_agent.substring(0, 50) + '...'
                           : '-'}
