@@ -11,7 +11,7 @@ interface CustomQRProps {
   isGradient?: boolean
   gradientEndColor?: string
   gradientType?: 'linear' | 'radial'
-  qrStyle?: 'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars'
+  qrStyle?: 'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars' | 'hearts'
   eyeStyleOuter?: 'classic' | 'rounded' | 'circle'
   eyeStyleInner?: 'classic' | 'rounded' | 'circle'
   eyeColorTL?: string // Top-Left eye color
@@ -266,6 +266,26 @@ export default function CustomQR({
             vCtx.quadraticCurveTo(cx + m / 2, cy + m / 2, cx + m / 2, cy + m)
             vCtx.quadraticCurveTo(cx + m / 2, cy + m / 2, cx, cy + m / 2)
             vCtx.quadraticCurveTo(cx + m / 2, cy + m / 2, cx + m / 2, cy)
+            vCtx.closePath()
+            vCtx.fill()
+          } else if (qrStyle === 'hearts') {
+            vCtx.beginPath()
+            const w = m * 0.82
+            const h = m * 0.82
+            const x = cx + (m - w) / 2
+            const y = cy + (m - h) / 2
+            
+            vCtx.moveTo(x + w / 2, y + h * 0.85)
+            vCtx.bezierCurveTo(
+              x + w * 0.05, y + h * 0.55,
+              x - w * 0.05, y + h * 0.1,
+              x + w / 2, y + h * 0.25
+            )
+            vCtx.bezierCurveTo(
+              x + w * 1.05, y + h * 0.1,
+              x + w * 0.95, y + h * 0.55,
+              x + w / 2, y + h * 0.85
+            )
             vCtx.closePath()
             vCtx.fill()
           }

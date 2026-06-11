@@ -13,8 +13,8 @@ interface Props {
   onErrorLevelChange: (level: 'L' | 'M' | 'H' | 'Q') => void
   logoUrl: string
   onLogoUrlChange: (url: string) => void
-  qrStyle: 'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars'
-  onQrStyleChange: (style: 'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars') => void
+  qrStyle: 'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars' | 'hearts'
+  onQrStyleChange: (style: 'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars' | 'hearts') => void
   qrFrame: 'none' | 'brackets' | 'laser' | 'card' | 'bubble'
   onQrFrameChange: (frame: 'none' | 'brackets' | 'laser' | 'card' | 'bubble') => void
   isGradient: boolean
@@ -369,6 +369,7 @@ export default function QRCustomizer({
               { id: 'dots', label: 'Circle Dots' },
               { id: 'diamonds', label: 'Diamonds' },
               { id: 'stars', label: 'Stars' },
+              { id: 'hearts', label: 'Hearts' },
             ].map((s) => (
               <button
                 key={s.id}

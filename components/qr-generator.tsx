@@ -23,7 +23,7 @@ export default function QRGenerator({ toolType, onBack }: Props) {
   const [errorLevel, setErrorLevel] = useState<'L' | 'M' | 'H' | 'Q'>('H')
   const [logoUrl, setLogoUrl] = useState<string>('')
   const [saving, setSaving] = useState(false)
-  const [qrStyle, setQrStyle] = useState<'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars'>('classic')
+  const [qrStyle, setQrStyle] = useState<'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars' | 'hearts'>('classic')
   const [qrFrame, setQrFrame] = useState<'none' | 'brackets' | 'laser' | 'card' | 'bubble'>('none')
   const [isGradient, setIsGradient] = useState(false)
   const [gradientEndColor, setGradientEndColor] = useState('#fb923c')
