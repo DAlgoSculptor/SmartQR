@@ -40,6 +40,12 @@ export default function QRGenerator({ toolType, onBack }: Props) {
   const [logoSize, setLogoSize] = useState(44)
   const [frameText, setFrameText] = useState('SCAN ME')
 
+  // Marketing tracking pixels
+  const [metaPixelId, setMetaPixelId] = useState('')
+  const [googleAnalyticsId, setGoogleAnalyticsId] = useState('')
+  const [tiktokPixelId, setTiktokPixelId] = useState('')
+  const [linkedinPixelId, setLinkedinPixelId] = useState('')
+
   const qrRef = useRef<HTMLDivElement>(null)
 
   // Auth & Free usage states
@@ -175,6 +181,10 @@ export default function QRGenerator({ toolType, onBack }: Props) {
             logoBgShield,
             logoSize,
             frameText,
+            metaPixelId,
+            googleAnalyticsId,
+            tiktokPixelId,
+            linkedinPixelId,
           }),
           background_color: bgColor,
           size: qrSize,
@@ -306,6 +316,14 @@ export default function QRGenerator({ toolType, onBack }: Props) {
               onLogoSizeChange={setLogoSize}
               frameText={frameText}
               onFrameTextChange={setFrameText}
+              metaPixelId={metaPixelId}
+              onMetaPixelIdChange={setMetaPixelId}
+              googleAnalyticsId={googleAnalyticsId}
+              onGoogleAnalyticsIdChange={setGoogleAnalyticsId}
+              tiktokPixelId={tiktokPixelId}
+              onTiktokPixelIdChange={setTiktokPixelId}
+              linkedinPixelId={linkedinPixelId}
+              onLinkedinPixelIdChange={setLinkedinPixelId}
             />
           </div>
         </div>

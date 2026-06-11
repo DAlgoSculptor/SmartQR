@@ -41,6 +41,14 @@ interface Props {
   onLogoSizeChange: (size: number) => void
   frameText: string
   onFrameTextChange: (text: string) => void
+  metaPixelId: string
+  onMetaPixelIdChange: (val: string) => void
+  googleAnalyticsId: string
+  onGoogleAnalyticsIdChange: (val: string) => void
+  tiktokPixelId: string
+  onTiktokPixelIdChange: (val: string) => void
+  linkedinPixelId: string
+  onLinkedinPixelIdChange: (val: string) => void
 }
 
 export default function QRCustomizer({
@@ -82,6 +90,14 @@ export default function QRCustomizer({
   onLogoSizeChange,
   frameText,
   onFrameTextChange,
+  metaPixelId,
+  onMetaPixelIdChange,
+  googleAnalyticsId,
+  onGoogleAnalyticsIdChange,
+  tiktokPixelId,
+  onTiktokPixelIdChange,
+  linkedinPixelId,
+  onLinkedinPixelIdChange,
 }: Props) {
   const applyPreset = (preset: string) => {
     switch (preset) {
@@ -618,6 +634,55 @@ export default function QRCustomizer({
           <p className="text-[11px] text-foreground/40 font-medium">
             Higher levels (e.g. H / Q) allow the QR code to be readable even with large overlapping center logos or unique dot styles.
           </p>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <h3 className="text-xs font-bold text-foreground/40 uppercase tracking-widest pb-2 border-b border-white/5">Marketing & Retargeting Pixels</h3>
+        <p className="text-[11px] text-foreground/40 font-medium">
+          Add tracking pixels to build custom audiences and run retargeting ads when users scan your dynamic QR codes. Note: these only apply to dynamic redirects.
+        </p>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">Meta Pixel ID (Facebook)</label>
+            <Input
+              type="text"
+              placeholder="e.g. 123456789012345"
+              value={metaPixelId}
+              onChange={(e) => onMetaPixelIdChange(e.target.value)}
+              className="border-white/10 bg-white/[0.01] focus-visible:border-orange-500/40 focus-visible:ring-orange-500/20 rounded-xl py-5 transition-all duration-300 text-white font-medium"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">Google Analytics ID</label>
+            <Input
+              type="text"
+              placeholder="e.g. G-XXXXXXXXXX"
+              value={googleAnalyticsId}
+              onChange={(e) => onGoogleAnalyticsIdChange(e.target.value)}
+              className="border-white/10 bg-white/[0.01] focus-visible:border-orange-500/40 focus-visible:ring-orange-500/20 rounded-xl py-5 transition-all duration-300 text-white font-medium"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">TikTok Pixel ID</label>
+            <Input
+              type="text"
+              placeholder="e.g. CXXXXXXXXXXXXXX"
+              value={tiktokPixelId}
+              onChange={(e) => onTiktokPixelIdChange(e.target.value)}
+              className="border-white/10 bg-white/[0.01] focus-visible:border-orange-500/40 focus-visible:ring-orange-500/20 rounded-xl py-5 transition-all duration-300 text-white font-medium"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-foreground/50 uppercase tracking-wider">LinkedIn Partner ID</label>
+            <Input
+              type="text"
+              placeholder="e.g. 1234567"
+              value={linkedinPixelId}
+              onChange={(e) => onLinkedinPixelIdChange(e.target.value)}
+              className="border-white/10 bg-white/[0.01] focus-visible:border-orange-500/40 focus-visible:ring-orange-500/20 rounded-xl py-5 transition-all duration-300 text-white font-medium"
+            />
+          </div>
         </div>
       </div>
     </div>
