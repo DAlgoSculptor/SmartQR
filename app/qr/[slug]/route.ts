@@ -51,7 +51,7 @@ export async function GET(
         qr_code_id: qrCode.id,
         ip_address: ipAddress,
         user_agent: userAgent,
-        referrer: referrer,
+        referer: referrer,
       }
 
       try {

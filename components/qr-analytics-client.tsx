@@ -26,7 +26,7 @@ interface AnalyticsRecord {
   user_agent?: string
   country?: string
   city?: string
-  referrer?: string
+  referer?: string
 }
 
 interface AnalyticsData {
@@ -45,6 +45,11 @@ export default function QRAnalyticsClient({
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     fetchAnalytics()
@@ -93,7 +98,7 @@ export default function QRAnalyticsClient({
   const uniqueIps = new Set(analytics.map((a) => a.ip_address).filter(Boolean)).size
 
   const qrRef = useRef<HTMLDivElement>(null)
-  const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/qr/${qr.slug}` : ''
+  const qrUrl = mounted ? `${window.location.origin}/qr/${qr.slug}` : ''
 
   const handleCopyCode = async () => {
     try {
@@ -271,7 +276,7 @@ export default function QRAnalyticsClient({
                       <td className="px-6 py-4 text-sm text-foreground/80">
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-foreground/50" />
-                          {new Date(record.scanned_at).toLocaleString()}
+                          {mounted ? new Date(record.scanned_at).toLocaleString() : ''}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-foreground/80">
