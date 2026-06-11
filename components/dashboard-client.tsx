@@ -61,6 +61,7 @@ export default function DashboardClient({ user }: { user: SupabaseUser }) {
   const [analyticsData, setAnalyticsData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [origin, setOrigin] = useState('')
   
   // Search and Filter states for the bottom list
   const [searchTerm, setSearchTerm] = useState('')
@@ -73,6 +74,12 @@ export default function DashboardClient({ user }: { user: SupabaseUser }) {
   const [sandboxStyle, setSandboxStyle] = useState<'classic' | 'rounded' | 'dots' | 'diamonds' | 'stars' | 'hearts'>('rounded')
   const [sandboxEyeShape, setSandboxEyeShape] = useState<'classic' | 'rounded' | 'circle'>('rounded')
   const [sandboxColor, setSandboxColor] = useState('#ea580c')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setOrigin(window.location.origin)
+    }
+  }, [])
 
   useEffect(() => {
     fetchDashboardData()
@@ -464,7 +471,7 @@ export default function DashboardClient({ user }: { user: SupabaseUser }) {
                             {/* Tiny Live QR Thumbnail */}
                             <div className="w-10 h-10 bg-black/40 border border-white/5 rounded-lg flex items-center justify-center shrink-0 overflow-hidden p-0.5">
                               <CustomQR 
-                                value={`${window.location.origin}/qr/${qr.slug}`} 
+                                value={`${origin}/qr/${qr.slug}`} 
                                 size={36} 
                                 fgColor={parsedColor} 
                                 bgColor="#080808" 
@@ -816,7 +823,7 @@ export default function DashboardClient({ user }: { user: SupabaseUser }) {
                         variant="outline"
                         className="w-full border-white/10 bg-white/[0.01] hover:bg-white/[0.04] hover:border-white/20 text-white text-[11px] h-8.5 rounded-xl flex items-center justify-center font-bold cursor-pointer"
                         onClick={() => {
-                          const url = `${window.location.origin}/qr/${qr.slug}`
+                          const url = `${origin}/qr/${qr.slug}`
                           navigator.clipboard.writeText(url)
                           alert('URL copied to clipboard!')
                         }}
