@@ -92,28 +92,31 @@ export default async function MenuViewerPage({
   const currency = menuData.currency || '$'
 
   return (
-    <main className="min-h-screen bg-[#0d0a08] text-[#f7f2ed] py-16 px-4 md:px-8 flex flex-col items-center justify-start relative overflow-hidden">
+    <main className="min-h-screen bg-background text-foreground py-16 px-4 md:px-8 flex flex-col items-center justify-start relative overflow-hidden">
+      {/* Background grid lines overlay */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-60 pointer-events-none -z-10" />
+
       {/* Background decorations - Warm Amber Radial Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none -z-10" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/3 rounded-full blur-[140px] pointer-events-none -z-10" />
 
       {/* Menu Container */}
       <div className="w-full max-w-2xl space-y-12 animate-fade-in">
         {/* Header Block */}
         <div className="text-center space-y-4 pt-6">
-          <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 mx-auto shadow-md">
+          <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mx-auto shadow-md">
             <Utensils className="w-5 h-5" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-amber-100 font-serif">
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white font-display">
               {menuData.restaurantName || 'Gourmet Bistro'}
             </h1>
             {menuData.description && (
-              <p className="text-sm md:text-base text-amber-100/60 font-medium italic max-w-md mx-auto text-balance">
+              <p className="text-sm md:text-base text-foreground/60 font-medium italic max-w-md mx-auto text-balance font-display">
                 {menuData.description}
               </p>
             )}
           </div>
-          <div className="w-24 h-[1px] bg-amber-500/20 mx-auto mt-6" />
+          <div className="w-24 h-[1px] bg-primary/20 mx-auto mt-6" />
         </div>
 
         {/* Menu Items List */}
@@ -122,21 +125,21 @@ export default async function MenuViewerPage({
             menuData.items.map((item, idx) => (
               <div
                 key={idx}
-                className="group border border-amber-500/10 hover:border-amber-500/20 p-5 md:p-6 rounded-2xl bg-[#130f0c] hover:bg-[#181310] transition duration-300 relative shadow-md"
+                className="group border border-white/5 p-5 md:p-6 rounded-2xl bg-card/20 hover:bg-card/40 transition duration-300 relative shadow-md hover:border-primary/20"
               >
                 <div className="flex justify-between items-baseline gap-4">
-                  <h3 className="text-base md:text-lg font-bold text-amber-100 group-hover:text-amber-400 transition-colors duration-300">
+                  <h3 className="text-base md:text-lg font-bold text-white group-hover:text-primary transition-colors duration-300 font-display">
                     {item.name}
                   </h3>
                   {/* Decorative line */}
-                  <div className="flex-1 border-b border-dotted border-amber-500/15 group-hover:border-amber-500/35 transition duration-300 hidden sm:block" />
-                  <span className="text-base md:text-lg font-extrabold text-amber-400 font-mono">
+                  <div className="flex-1 border-b border-dotted border-white/10 group-hover:border-primary/25 transition duration-300 hidden sm:block" />
+                  <span className="text-base md:text-lg font-extrabold text-primary font-mono">
                     {currency}
                     {item.price}
                   </span>
                 </div>
                 {item.description && (
-                  <p className="text-xs md:text-sm text-amber-100/50 mt-2 leading-relaxed">
+                  <p className="text-xs md:text-sm text-foreground/50 mt-2 leading-relaxed font-medium">
                     {item.description}
                   </p>
                 )}
@@ -154,9 +157,9 @@ export default async function MenuViewerPage({
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer hover:opacity-85 transition">
               <span
-                className="font-black tracking-tight text-base"
+                className="font-black tracking-tight text-base font-display"
                 style={{
-                  background: 'linear-gradient(to right, #ea580c 0%, #ea580c 28%, transparent 36%)',
+                  background: 'linear-gradient(to right, oklch(0.62 0.18 35) 0%, oklch(0.85 0.04 60) 50%, transparent 60%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   WebkitTextStroke: '0.5px rgba(255, 255, 255, 0.85)',
@@ -165,7 +168,7 @@ export default async function MenuViewerPage({
               >
                 SmartQr
               </span>
-              <span className="font-semibold text-xs tracking-wider text-amber-100/40 uppercase">Digital Menu</span>
+              <span className="font-semibold text-xs tracking-wider text-foreground/40 uppercase">Digital Menu</span>
             </div>
           </Link>
         </div>

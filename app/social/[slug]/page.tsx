@@ -80,9 +80,9 @@ const getPlatformDetails = (platform: string) => {
     default:
       return {
         icon: <Globe className="w-5 h-5" />,
-        bgColor: 'hover:bg-orange-500/10',
-        borderColor: 'hover:border-orange-500/30',
-        textColor: 'group-hover:text-[#ea580c]',
+        bgColor: 'hover:bg-primary/10',
+        borderColor: 'hover:border-primary/30',
+        textColor: 'group-hover:text-primary',
         name: 'Website / Portfolio',
       }
   }
@@ -151,26 +151,26 @@ export default async function SocialViewerPage({
     : 'QR'
 
   return (
-    <main className="min-h-screen bg-[#040508] text-foreground py-16 px-4 flex flex-col items-center justify-start relative overflow-hidden">
+    <main className="min-h-screen bg-background text-foreground py-16 px-4 flex flex-col items-center justify-start relative overflow-hidden">
       {/* Background grid lines overlay */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-[0.01] pointer-events-none -z-10" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-60 pointer-events-none -z-10" />
 
       {/* Background decorations */}
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-orange-500/[0.02] rounded-full blur-[100px] pointer-events-none -z-10" />
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-primary/3 rounded-full blur-[100px] pointer-events-none -z-10" />
 
       {/* Profile Container */}
       <div className="w-full max-w-md text-center space-y-8 animate-fade-in">
         {/* Profile Avatar & Header */}
         <div className="space-y-4">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-r from-orange-400 to-amber-500 p-[3px] mx-auto shadow-xl shadow-orange-500/10">
-            <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center font-bold text-3xl tracking-wide text-white">
+          <div className="w-24 h-24 rounded-full bg-gradient-primary p-[3px] mx-auto shadow-xl shadow-primary/10">
+            <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center font-bold text-3xl tracking-wide text-white font-display">
               {initials}
             </div>
           </div>
           <div className="space-y-1.5">
-            <h1 className="text-2xl font-bold tracking-tight text-white">{socialData.profileName || 'Anonymous'}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-white font-display">{socialData.profileName || 'Anonymous'}</h1>
             {socialData.bio && (
-              <p className="text-sm text-foreground/70 max-w-sm mx-auto leading-relaxed text-balance">
+              <p className="text-sm text-foreground/70 max-w-sm mx-auto leading-relaxed text-balance font-medium">
                 {socialData.bio}
               </p>
             )}
@@ -221,9 +221,9 @@ export default async function SocialViewerPage({
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer hover:opacity-85 transition">
               <span
-                className="font-black tracking-tight text-base"
+                className="font-black tracking-tight text-base font-display"
                 style={{
-                  background: 'linear-gradient(to right, #ea580c 0%, #ea580c 28%, transparent 36%)',
+                  background: 'linear-gradient(to right, oklch(0.62 0.18 35) 0%, oklch(0.85 0.04 60) 50%, transparent 60%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   WebkitTextStroke: '0.5px rgba(255, 255, 255, 0.85)',
